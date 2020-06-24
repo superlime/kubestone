@@ -89,7 +89,7 @@ var _ = Describe("Pod Annotations", func() {
 				},
 			}
 
-			jobSpec = NewClientJob(&cr)
+			jobSpec = NewClientJob(&cr, "1.1.1.1")
 			serverDeployment = NewServerDeployment(&cr)
 			clientService = NewServerService(&cr)
 

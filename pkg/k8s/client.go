@@ -165,6 +165,15 @@ func (a *Access) IsEndpointReady(namespacedName types.NamespacedName) (finished 
 	return ready, nil
 }
 
+func (a *Access) GetEndpointAddress(namespacedName types.NamespacedName) string {
+	endpoint, err := a.Clientset.CoreV1().Endpoints(namespacedName.Namespace).Get(
+		namespacedName.Name, metav1.GetOptions{})
+	if err != nil {
+		return "nil"
+	}
+
+	return endpoint.Subsets[0].Addresses[0].IP
+}
 // IsDeploymentReady returns true if the given deployment's ready replicas matching with the desired replicas
 func (a *Access) IsDeploymentReady(namespacedName types.NamespacedName) (ready bool, err error) {
 	ready, err = false, nil

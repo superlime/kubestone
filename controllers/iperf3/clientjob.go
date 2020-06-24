@@ -40,13 +40,13 @@ func clientJobName(cr *perfv1alpha1.Iperf3) string {
 // NewClientJob creates an Iperf3 Client Job (targeting the
 // Server Deployment via the Server Service) from the provided
 // IPerf3 Benchmark Definition.
-func NewClientJob(cr *perfv1alpha1.Iperf3) *batchv1.Job {
+func NewClientJob(cr *perfv1alpha1.Iperf3, serverAddress string) *batchv1.Job {
 	objectMeta := metav1.ObjectMeta{
 		Name:      clientJobName(cr),
 		Namespace: cr.Namespace,
 	}
 
-	serverAddress := serverServiceName(cr)
+	// serverAddress := serverServiceName(cr)
 
 	iperfCmdLineArgs := []string{
 		"--client", serverAddress,

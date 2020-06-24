@@ -49,7 +49,7 @@ var _ = Describe("Client Pod", func() {
 					},
 				},
 			}
-			job = NewClientJob(&cr)
+			job = NewClientJob(&cr, "1.1.1.1")
 		})
 
 		Context("with default settings", func() {
@@ -78,7 +78,7 @@ var _ = Describe("Client Pod", func() {
 
 		Context("with UDP mode specified", func() {
 			cr.Spec.UDP = true
-			job := NewClientJob(&cr)
+			job := NewClientJob(&cr, "1.1.1.1")
 			It("should contain --udp flag in iperf args", func() {
 				Expect(job.Spec.Template.Spec.Containers[0].Args).To(
 					ContainElement("--udp"))
