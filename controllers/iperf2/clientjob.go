@@ -23,7 +23,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/firepear/qsplit"
-	perfv1alpha1 "github.com/Bwatada/kubestone/tree/windows/api/v1alpha1"
+	perfv1alpha1 "github.com/xridge/kubestone/api/v1alpha1"
 	"github.com/xridge/kubestone/pkg/k8s"
 )
 
