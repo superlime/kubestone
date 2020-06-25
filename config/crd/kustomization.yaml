@@ -3,6 +3,7 @@
 # It should be run by config/default
 resources:
 - bases/perf.kubestone.xridge.io_iperf3s.yaml
+- bases/perf.kubestone.xridge.io_iperf2s.yaml
 - bases/perf.kubestone.xridge.io_fios.yaml
 - bases/perf.kubestone.xridge.io_sysbenches.yaml
 - bases/perf.kubestone.xridge.io_drills.yaml
