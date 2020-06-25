@@ -8,7 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	ksapi "github.com/xridge/kubestone/api/v1alpha1"
+	ksapi "https://github.com/Bwatada/kubestone/tree/windows/api/v1alpha1"
 )
 
 var _ = Describe("Pod Annotations", func() {

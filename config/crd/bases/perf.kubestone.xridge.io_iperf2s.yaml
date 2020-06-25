@@ -37,7 +37,7 @@ spec:
         metadata:
           type: object
         spec:
-          description: Iperf3Spec defines the Iperf2 Benchmark Stone which consist
+          description: Iperf2Spec defines the Iperf2 Benchmark Stone which consist
             of server deployment with service definition and client pod.
           properties:
             clientConfiguration:
