@@ -20,7 +20,7 @@ import (
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 
-	ksapi "https://github.com/Bwatada/kubestone/tree/windows/api/v1alpha1"
+	ksapi "github.com/Bwatada/kubestone/tree/windows/api/v1alpha1"
 )
 
 var _ = Describe("Server Service", func() {

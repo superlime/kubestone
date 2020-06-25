@@ -24,7 +24,7 @@ import (
 	. "github.com/onsi/gomega"
 	batchv1 "k8s.io/api/batch/v1"
 
-	ksapi "https://github.com/Bwatada/kubestone/tree/windows/api/v1alpha1"
+	ksapi "github.com/Bwatada/kubestone/tree/windows/api/v1alpha1"
 )
 
 var _ = Describe("Client Pod", func() {

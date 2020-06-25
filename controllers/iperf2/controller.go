@@ -25,7 +25,7 @@ import (
 
 	"github.com/xridge/kubestone/pkg/k8s"
 
-	perfv1alpha1 "https://github.com/Bwatada/kubestone/tree/windows/api/v1alpha1"
+	perfv1alpha1 "github.com/Bwatada/kubestone/tree/windows/api/v1alpha1"
 )
 
 // Reconciler provides fields from manager to reconciler
