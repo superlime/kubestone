@@ -22,12 +22,16 @@ spec:
       labels:
         control-plane: controller-manager
     spec:
+      nodeSelector:
+        kubernetes.io/os: linux
       containers:
       - command:
         - /manager
         args:
         - --enable-leader-election
-        image: xridge/kubestone:latest
+        image : bwatada/kubestonewindows:test
+        imagePullPolicy: Always
+        # image: bwatada/kubestonewindows:hack2
         name: manager
         resources:
           limits:

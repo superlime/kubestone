@@ -109,13 +109,8 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf2) *appsv1.Deployment {
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
-									Exec: &corev1.ExecAction{
-										Command: []string{
-											"awk",
-											readinessAwkCmd,
-											"/proc/1/net/tcp",
-											"/proc/1/net/tcp6",
-										},
+									TCPSocket: &corev1.TCPSocketAction{
+										Port: intstr.FromInt(Iperf2ServerPort),
 									},
 								},
 								InitialDelaySeconds: 5,
