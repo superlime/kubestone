@@ -35,6 +35,7 @@ import (
 	"github.com/xridge/kubestone/controllers/drill"
 	"github.com/xridge/kubestone/controllers/fio"
 	"github.com/xridge/kubestone/controllers/ioping"
+	"github.com/xridge/kubestone/controllers/iperf2"
 	"github.com/xridge/kubestone/controllers/iperf3"
 	"github.com/xridge/kubestone/controllers/kafkabench"
 	"github.com/xridge/kubestone/controllers/pgbench"
@@ -90,6 +91,13 @@ func main() {
 		EventRecorder: k8s.NewEventRecorder(clientSet, rootLog.Sugar().Infof),
 	}
 
+	if err = (&iperf2.Reconciler{
+		K8S: k8sAccess,
+		Log: ctrl.Log.WithName("controllers").WithName("Iperf2"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Iperf2")
+		os.Exit(1)
+	}
 	if err = (&iperf3.Reconciler{
 		K8S: k8sAccess,
 		Log: ctrl.Log.WithName("controllers").WithName("Iperf3"),

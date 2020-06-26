@@ -62,7 +62,7 @@ type Iperf2Spec struct {
 // +kubebuilder:printcolumn:name="Running",type="boolean",JSONPath=".status.running"
 // +kubebuilder:printcolumn:name="Completed",type="boolean",JSONPath=".status.completed"
 
-// Iperf2 is the Schema for the iperf3s API
+// Iperf2 is the Schema for the iperf2s API
 type Iperf2 struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
