@@ -84,7 +84,10 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{Requeue: true}, nil
 	}
 
-	if err := r.K8S.CreateWithReference(ctx, NewClientJob(&cr), &cr); err != nil {
+	serviceIp := r.K8S.GetEndpointAddress(types.NamespacedName{
+		Namespace: cr.Namespace,
+		Name:      cr.Name})
+	if err := r.K8S.CreateWithReference(ctx, NewClientJob(&cr, serviceIp), &cr); err != nil {
 		return ctrl.Result{}, err
 	}
 
