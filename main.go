@@ -42,7 +42,7 @@ import (
 	"github.com/xridge/kubestone/controllers/qperf"
 	"github.com/xridge/kubestone/controllers/s3bench"
 	"github.com/xridge/kubestone/controllers/sysbench"
-
+	"github.com/xridge/kubestone/controllers/ping"
 	"github.com/xridge/kubestone/pkg/k8s"
 	// +kubebuilder:scaffold:imports
 )

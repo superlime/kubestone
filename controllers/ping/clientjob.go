@@ -17,7 +17,6 @@ limitations under the License.
 package ping
 
 import (
-	"strconv"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +39,7 @@ func clientJobName(cr *perfv1alpha1.Ping) string {
 // NewClientJob creates an Ping Client Job (targeting the
 // Server Deployment via the Server Service) from the provided
 // Ping Benchmark Definition.
-func NewClientJob(cr *perfv1alpha1.Ping, serviceIp) *batchv1.Job {
+func NewClientJob(cr *perfv1alpha1.Ping, serviceIp string) *batchv1.Job {
 	objectMeta := metav1.ObjectMeta{
 		Name:      clientJobName(cr),
 		Namespace: cr.Namespace,
