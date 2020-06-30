@@ -1521,14 +1521,8 @@ spec:
                       type: object
                   type: object
               type: object
-            tests:
-              description: Tests are the tests that we would like to run
-              items:
-                type: string
-              type: array
           required:
           - image
-          - tests
           type: object
         status:
           description: BenchmarkStatus describes the current state of the benchmark

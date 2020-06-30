@@ -90,7 +90,13 @@ func main() {
 		Scheme:        mgr.GetScheme(),
 		EventRecorder: k8s.NewEventRecorder(clientSet, rootLog.Sugar().Infof),
 	}
-
+	if err = (&ping.Reconciler{
+		K8S: k8sAccess,
+		Log: ctrl.Log.WithName("controllers").WithName("Ping"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Ping")
+		os.Exit(1)
+	}
 	if err = (&iperf2.Reconciler{
 		K8S: k8sAccess,
 		Log: ctrl.Log.WithName("controllers").WithName("Iperf2"),

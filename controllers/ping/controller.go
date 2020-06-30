@@ -82,7 +82,7 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		// Wait for deployment to be connected to the service endpoint
 		return ctrl.Result{Requeue: true}, nil
 	}
-	
+
 	serviceIp := r.K8S.GetEndpointAddress(types.NamespacedName{
 		Namespace: cr.Namespace,
 		Name:      cr.Name})

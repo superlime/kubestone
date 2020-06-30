@@ -49,7 +49,7 @@ func NewClientJob(cr *perfv1alpha1.Ping, serviceIp string) *batchv1.Job {
 		serviceIp,
 	}
 	pingCmdLineArgs = append(pingCmdLineArgs, qsplit.ToStrings([]byte(cr.Spec.Options))...)
-	pingCmdLineArgs = append(pingCmdLineArgs, cr.Spec.Tests...)
+	pingCmdLineArgs = append(pingCmdLineArgs)
 
 	backoffLimit := int32(6)
 

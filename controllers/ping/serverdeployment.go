@@ -17,7 +17,6 @@ limitations under the License.
 package ping
 
 import (
-	"strconv"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -47,7 +46,9 @@ func NewServerDeployment(cr *perfv1alpha1.Ping) *appsv1.Deployment {
 		labels[k] = v
 	}
 
-	pingCmdLineArgs := []string{"--listen_port", strconv.Itoa(perfv1alpha1.PingPort)}
+	pingCmdLineArgs := []string{
+		"--server",
+		"--port", "5201"}
 
 	deployment := appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -71,11 +72,11 @@ func NewServerDeployment(cr *perfv1alpha1.Ping) *appsv1.Deployment {
 					},
 					Containers: []corev1.Container{
 						{
-							Name:            "server",
-							Image:           cr.Spec.Image.Name,
+							Name: "server",
+							Image: "bwatada/iperf2:latest",
+							Command: []string{"iperf2"},
+							Args: pingCmdLineArgs,
 							ImagePullPolicy: corev1.PullPolicy(cr.Spec.Image.PullPolicy),
-							Command:         []string{"ping"},
-							Args:            pingCmdLineArgs,
 							Ports: []corev1.ContainerPort{
 								{
 									Name:          "ping-server",
