@@ -74,7 +74,7 @@ func NewServerDeployment(cr *perfv1alpha1.Ping) *appsv1.Deployment {
 						{
 							Name: "server",
 							Image: "bwatada/iperf2:latest",
-							Command: []string{"iperf2"},
+							Command: []string{"iperf"},
 							Args: pingCmdLineArgs,
 							ImagePullPolicy: corev1.PullPolicy(cr.Spec.Image.PullPolicy),
 							Ports: []corev1.ContainerPort{

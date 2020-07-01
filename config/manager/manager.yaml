@@ -29,7 +29,7 @@ spec:
         - /manager
         args:
         - --enable-leader-election
-        image : bwatada/kubestonewindows:test
+        image : bwatada/kubestonewindows:latest
         imagePullPolicy: Always
         # image: bwatada/kubestonewindows:hack2
         name: manager
