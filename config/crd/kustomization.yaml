@@ -15,6 +15,7 @@ resources:
 - bases/perf.kubestone.xridge.io_ocplogtests.yaml
 - bases/perf.kubestone.xridge.io_s3benches.yaml
 - bases/perf.kubestone.xridge.io_ping.yaml
+- bases/perf.kubestone.xridge.io_ethr.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
