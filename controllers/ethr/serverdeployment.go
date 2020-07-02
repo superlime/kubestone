@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf2
+package ethr
 
 import (
 
@@ -28,23 +28,22 @@ import (
 	"github.com/firepear/qsplit"
 )
 
-// Iperf2ServerPort is the TCP or UDP port where
-// the iperf2 server deployment and service listens
-const Iperf2ServerPort = 5001
+// Port for readiness check
+const EthrReadinessPort = 80
 
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;create;delete;watch
 
-func serverDeploymentName(cr *perfv1alpha1.Iperf2) string {
+func serverDeploymentName(cr *perfv1alpha1.Ethr) string {
 	return cr.Name
 }
 
-// NewServerDeployment create a iperf2 server deployment from the
-// provided Iperf2 Benchmark Definition.
-func NewServerDeployment(cr *perfv1alpha1.Iperf2) *appsv1.Deployment {
+// NewServerDeployment create a ethr server deployment from the
+// provided Ethr Benchmark Definition.
+func NewServerDeployment(cr *perfv1alpha1.Ethr) *appsv1.Deployment {
 	replicas := int32(1)
 
 	labels := map[string]string{
-		"kubestone.xridge.io/app":     "iperf2",
+		"kubestone.xridge.io/app":     "ethr",
 		"kubestone.xridge.io/cr-name": cr.Name,
 	}
 	// Let's be nice and don't mutate CRs label field
@@ -52,17 +51,17 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf2) *appsv1.Deployment {
 		labels[k] = v
 	}
 
-	iperfCmdLineArgs := []string{
+	ethrCmdLineArgs := []string{
 		"-s",
 	}
 
 	protocol := corev1.Protocol(corev1.ProtocolTCP)
 	if cr.Spec.UDP {
-		iperfCmdLineArgs = append(iperfCmdLineArgs, "--udp")
+		ethrCmdLineArgs = append(ethrCmdLineArgs, "--udp")
 		protocol = corev1.Protocol(corev1.ProtocolUDP)
 	}
 
-	iperfCmdLineArgs = append(iperfCmdLineArgs,
+	ethrCmdLineArgs = append(ethrCmdLineArgs,
 		qsplit.ToStrings([]byte(cr.Spec.ServerConfiguration.CmdLineArgs))...)
 
 
@@ -93,19 +92,44 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf2) *appsv1.Deployment {
 							Name:            "server",
 							Image:           cr.Spec.Image.Name,
 							ImagePullPolicy: corev1.PullPolicy(cr.Spec.Image.PullPolicy),
-							Command:         []string{"iperf"},
-							Args:            iperfCmdLineArgs,
+							Command:         []string{"ethr"},
+							Args:            ethrCmdLineArgs,
 							Ports: []corev1.ContainerPort{
 								{
-									Name:          "iperf-server",
-									ContainerPort: Iperf2ServerPort,
+									Name:          "ethr-server-tcpbandwidth",
+									ContainerPort: perfv1alpha1.TCPBandwidthPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-tcpconnection",
+									ContainerPort: perfv1alpha1.TCPConnectionsPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-tcplatency",
+									ContainerPort: perfv1alpha1.TCPLatencyPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-httpbandwidth",
+									ContainerPort: perfv1alpha1.HTTPBandwidthPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-httpsbandwidth",
+									ContainerPort: perfv1alpha1.HTTPSBandwidthPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-httplatency",
+									ContainerPort: perfv1alpha1.HTTPLatencyPort,
 									Protocol:      protocol,
 								},
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									TCPSocket: &corev1.TCPSocketAction{
-										Port: intstr.FromInt(Iperf2ServerPort),
+										Port: intstr.FromInt(perfv1alpha1.TCPBandwidthPort),
 									},
 								},
 								InitialDelaySeconds: 5,

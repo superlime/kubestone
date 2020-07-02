@@ -43,6 +43,7 @@ import (
 	"github.com/xridge/kubestone/controllers/s3bench"
 	"github.com/xridge/kubestone/controllers/sysbench"
 	"github.com/xridge/kubestone/controllers/ping"
+	"github.com/xridge/kubestone/controllers/ethr"
 	"github.com/xridge/kubestone/pkg/k8s"
 	// +kubebuilder:scaffold:imports
 )
@@ -89,6 +90,13 @@ func main() {
 		Clientset:     clientSet,
 		Scheme:        mgr.GetScheme(),
 		EventRecorder: k8s.NewEventRecorder(clientSet, rootLog.Sugar().Infof),
+	}
+	if err = (&ethr.Reconciler{
+		K8S: k8sAccess,
+		Log: ctrl.Log.WithName("controllers").WithName("Ethr"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Ethr")
+		os.Exit(1)
 	}
 	if err = (&ping.Reconciler{
 		K8S: k8sAccess,
