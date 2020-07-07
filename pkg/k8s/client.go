@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/labels"
 	k8sclient "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/tools/reference"
@@ -87,6 +88,17 @@ func (a *Access) CreateWithReference(ctx context.Context, object, owner metav1.O
 	return nil
 }
 
+func logWithReference(owner metav1.Object, str string) {
+	_ = a.RecordEventf(owner, corev1.EventTypeNormal, Created, str, object.GetSelfLink())
+}
+
+func (a *Access) logPodLogs(pods []Pod) {
+	podLogOpts := corev1.PodLogOptions{}
+	for i, pod := range pods{
+		log := a.Clientset.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &podLogOpts)
+		logWithReference(ctx, pod, log)
+	}
+}
 // DeleteObject method deletes a kubernetes resource while
 // ignores not found errors, so that it can be called multiple times.
 // Successful deletion of the event is logged via EventRecorder
@@ -186,4 +198,11 @@ func (a *Access) IsDeploymentReady(namespacedName types.NamespacedName) (ready b
 	ready = deployment.Status.ReadyReplicas == *deployment.Spec.Replicas
 
 	return ready, err
+}
+
+func (k8sClient *Access) getPodsForSvc(svc *corev1.Service, namespacedName types.NamespacedName) (corev1.PodList, error) {
+	set := labels.Set(svc.Spec.Selector)
+	listOptions := metav1.ListOptions{LabelSelector: set.AsSelector().String()}
+	pods, err := k8sClient.Pods(namespacedName.Namespace).List(listOptions)
+	return pods, err
 }
