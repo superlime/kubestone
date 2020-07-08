@@ -103,16 +103,16 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{Requeue: true}, nil
 	}
 
-	pods, err := r.K8S.getPodsForSvc(serverService, types.NamespacedName {
+	pods, err := r.K8S.GetPodsForSvc(serverService, types.NamespacedName {
 		Namespace: cr.Namespace,
-		Name: cr.Name
+		Name: cr.Name,
 	})
 
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	logPodLogs(pods)
+	r.K8S.LogPodLogs(pods, serverDeployment)
 	if err := r.K8S.DeleteObject(ctx, serverService, &cr); err != nil {
 		return ctrl.Result{}, err
 	}

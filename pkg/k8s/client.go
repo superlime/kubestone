@@ -19,7 +19,8 @@ package k8s
 import (
 	"context"
 	"fmt"
-
+	"bytes"
+	"io"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -88,16 +89,28 @@ func (a *Access) CreateWithReference(ctx context.Context, object, owner metav1.O
 	return nil
 }
 
-func logWithReference(owner metav1.Object, str string) {
-	_ = a.RecordEventf(owner, corev1.EventTypeNormal, Created, str, object.GetSelfLink())
-}
 
-func (a *Access) logPodLogs(pods []Pod) {
+
+func (a *Access) LogPodLogs(pods *corev1.PodList, object metav1.Object) (logs []string, err error) {
 	podLogOpts := corev1.PodLogOptions{}
-	for i, pod := range pods{
-		log := a.Clientset.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &podLogOpts)
-		logWithReference(ctx, pod, log)
+	var strs []string
+	for _, pod := range pods.Items {
+		req := a.Clientset.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &podLogOpts)
+
+		logs, err := req.Stream()
+		defer logs.Close()
+
+		buf := new(bytes.Buffer)
+		_, err = io.Copy(buf, logs)
+		if err != nil {
+			return strs, err
+		}
+		str := buf.String()
+		a.RecordEventf(object, corev1.EventTypeNormal, Created, str, object.GetSelfLink())
+
+		strs = append(strs, str)
 	}
+	return strs, err
 }
 // DeleteObject method deletes a kubernetes resource while
 // ignores not found errors, so that it can be called multiple times.
@@ -186,6 +199,14 @@ func (a *Access) GetEndpointAddress(namespacedName types.NamespacedName) string 
 
 	return endpoint.Subsets[0].Addresses[0].IP
 }
+
+func (a *Access) GetPodsForSvc(svc *corev1.Service, namespacedName types.NamespacedName) (*corev1.PodList, error) {
+	set := labels.Set(svc.Spec.Selector)
+	listOptions := metav1.ListOptions{LabelSelector: set.AsSelector().String()}
+	pods, err := a.Clientset.CoreV1().Pods(namespacedName.Namespace).List(listOptions)
+	return pods, err
+}
+
 // IsDeploymentReady returns true if the given deployment's ready replicas matching with the desired replicas
 func (a *Access) IsDeploymentReady(namespacedName types.NamespacedName) (ready bool, err error) {
 	ready, err = false, nil
@@ -198,11 +219,4 @@ func (a *Access) IsDeploymentReady(namespacedName types.NamespacedName) (ready b
 	ready = deployment.Status.ReadyReplicas == *deployment.Spec.Replicas
 
 	return ready, err
-}
-
-func (k8sClient *Access) getPodsForSvc(svc *corev1.Service, namespacedName types.NamespacedName) (corev1.PodList, error) {
-	set := labels.Set(svc.Spec.Selector)
-	listOptions := metav1.ListOptions{LabelSelector: set.AsSelector().String()}
-	pods, err := k8sClient.Pods(namespacedName.Namespace).List(listOptions)
-	return pods, err
 }
