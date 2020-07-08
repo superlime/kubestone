@@ -96,32 +96,32 @@ func NewServerDeployment(cr *perfv1alpha1.Ethr) *appsv1.Deployment {
 							Args:            ethrCmdLineArgs,
 							Ports: []corev1.ContainerPort{
 								{
-									Name:          "ethr-server-tcpbandwidth",
+									Name:          "ethr-server-tb",
 									ContainerPort: perfv1alpha1.TCPBandwidthPort,
 									Protocol:      protocol,
 								},
 								{
-									Name:          "ethr-server-tcpconnection",
+									Name:          "ethr-server-tc",
 									ContainerPort: perfv1alpha1.TCPConnectionsPort,
 									Protocol:      protocol,
 								},
 								{
-									Name:          "ethr-server-tcplatency",
+									Name:          "ethr-server-tl",
 									ContainerPort: perfv1alpha1.TCPLatencyPort,
 									Protocol:      protocol,
 								},
 								{
-									Name:          "ethr-server-httpbandwidth",
+									Name:          "ethr-server-hb",
 									ContainerPort: perfv1alpha1.HTTPBandwidthPort,
 									Protocol:      protocol,
 								},
 								{
-									Name:          "ethr-server-httpsbandwidth",
+									Name:          "ethr-server-hsb",
 									ContainerPort: perfv1alpha1.HTTPSBandwidthPort,
 									Protocol:      protocol,
 								},
 								{
-									Name:          "ethr-server-httplatency",
+									Name:          "ethr-server-hl",
 									ContainerPort: perfv1alpha1.HTTPLatencyPort,
 									Protocol:      protocol,
 								},

@@ -48,32 +48,32 @@ func NewServerService(cr *perfv1alpha1.Ethr) *corev1.Service {
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{
 				{
-					Name:          "ethr-server-tcpbandwidth",
+					Name:          "ethr-server-tb",
 					Port: perfv1alpha1.TCPBandwidthPort,
 					Protocol:      protocol,
 				},
 				{
-					Name:          "ethr-server-tcpconnection",
+					Name:          "ethr-server-tc",
 					Port: perfv1alpha1.TCPConnectionsPort,
 					Protocol:      protocol,
 				},
 				{
-					Name:          "ethr-server-tcplatency",
+					Name:          "ethr-server-tl",
 					Port: perfv1alpha1.TCPLatencyPort,
 					Protocol:      protocol,
 				},
 				{
-					Name:          "ethr-server-httpbandwidth",
+					Name:          "ethr-server-hb",
 					Port: perfv1alpha1.HTTPBandwidthPort,
 					Protocol:      protocol,
 				},
 				{
-					Name:          "ethr-server-httpsbandwidth",
+					Name:          "ethr-server-hsb",
 					Port: perfv1alpha1.HTTPSBandwidthPort,
 					Protocol:      protocol,
 				},
 				{
-					Name:          "ethr-server-httplatency",
+					Name:          "ethr-server-hl",
 					Port: perfv1alpha1.HTTPLatencyPort,
 					Protocol:      protocol,
 				},
