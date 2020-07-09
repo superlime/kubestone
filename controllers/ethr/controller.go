@@ -63,6 +63,11 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
+	configMap := NewConfigMap(&cr)
+	if err := r.K8S.CreateWithReference(ctx, configMap, &cr); err != nil {
+		return ctrl.Result{}, err
+	}
+	
 	serverDeployment := NewServerDeployment(&cr)
 	if err := r.K8S.CreateWithReference(ctx, serverDeployment, &cr); err != nil {
 		return ctrl.Result{}, err

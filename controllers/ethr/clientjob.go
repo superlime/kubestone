@@ -20,7 +20,8 @@ import (
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	corev1 "k8s.io/api/core/v1"
+	
 	"github.com/firepear/qsplit"
 	perfv1alpha1 "github.com/xridge/kubestone/api/v1alpha1"
 	"github.com/xridge/kubestone/pkg/k8s"
@@ -58,9 +59,29 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 
 	job := k8s.NewPerfJob(objectMeta, "ethr-client", cr.Spec.Image,
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
+
+	volumes := []corev1.Volume{
+		corev1.Volume{
+			Name: "output-volume",
+			VolumeSource: corev1.VolumeSource{
+				HostPath: &corev1.HostPathVolumeSource{
+					Path: "\\tmp",
+				},
+			},
+		},
+	}
+	volumeMounts := []corev1.VolumeMount{
+		corev1.VolumeMount{
+			Name:      "output-volume",
+			MountPath: "\\tmp\\results",
+		},
+	}
+
 	backoffLimit := int32(6)
 	job.Spec.BackoffLimit = &backoffLimit
 	job.Spec.Template.Spec.Containers[0].Args = ethrCmdLineArgs
+	job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
+	job.Spec.Template.Spec.Volumes = volumes
 	job.Spec.Template.Spec.HostNetwork = cr.Spec.ClientConfiguration.HostNetwork
 
 	return job

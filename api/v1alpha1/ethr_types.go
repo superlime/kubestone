@@ -61,6 +61,10 @@ type EthrSpec struct {
 	// If enabled the '--udp' parameter is added to iperf command line args
 	// +optional
 	UDP bool `json:"udp,omitempty"`
+
+	// Volume contains the configuration for the volume that the ethr job should
+	// run on.
+	Volume VolumeSpec `json:"volume"`
 }
 
 // +kubebuilder:object:root=true
