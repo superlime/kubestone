@@ -1,4 +1,4 @@
-package iperf3
+package iperf2
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -13,21 +13,21 @@ import (
 
 var _ = Describe("Pod Annotations", func() {
 	Describe("created from CR", func() {
-		var cr ksapi.Iperf3
+		var cr ksapi.Iperf2
 		var serverDeployment *appsv1.Deployment
 		var clientService *corev1.Service
 		var jobSpec *batchv1.Job
 
 		BeforeEach(func() {
 			tolerationSeconds := int64(17)
-			cr = ksapi.Iperf3{
-				Spec: ksapi.Iperf3Spec{
+			cr = ksapi.Iperf2{
+				Spec: ksapi.Iperf2Spec{
 					Image: ksapi.ImageSpec{
 						Name:       "foo",
 						PullPolicy: "Always",
 						PullSecret: "pull-secret",
 					},
-					ServerConfiguration: ksapi.Iperf3ConfigurationSpec{
+					ServerConfiguration: ksapi.Iperf2ConfigurationSpec{
 						CmdLineArgs: "--testing --things",
 						HostNetwork: true,
 						PodConfigurationSpec: ksapi.PodConfigurationSpec{
@@ -77,7 +77,7 @@ var _ = Describe("Pod Annotations", func() {
 							},
 						},
 					},
-					ClientConfiguration: ksapi.Iperf3ConfigurationSpec{
+					ClientConfiguration: ksapi.Iperf2ConfigurationSpec{
 						CmdLineArgs: "--testing --things",
 						HostNetwork: true,
 						PodConfigurationSpec: ksapi.PodConfigurationSpec{

@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package ethr
 
 import (
-	"strconv"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	corev1 "k8s.io/api/core/v1"
+	
 	"github.com/firepear/qsplit"
 	perfv1alpha1 "github.com/xridge/kubestone/api/v1alpha1"
 	"github.com/xridge/kubestone/pkg/k8s"
@@ -29,7 +29,7 @@ import (
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;create;delete
 
-func clientJobName(cr *perfv1alpha1.Iperf3) string {
+func clientJobName(cr *perfv1alpha1.Ethr) string {
 	// Should not match with service name as the pod's
 	// hostname is set to it's name. If the two matches
 	// the destination ip will resolve to 127.0.0.1 and
@@ -37,34 +37,50 @@ func clientJobName(cr *perfv1alpha1.Iperf3) string {
 	return serverServiceName(cr) + "-client"
 }
 
-// NewClientJob creates an Iperf3 Client Job (targeting the
+// NewClientJob creates an Ethr Client Job (targeting the
 // Server Deployment via the Server Service) from the provided
-// IPerf3 Benchmark Definition.
-func NewClientJob(cr *perfv1alpha1.Iperf3, serverAddress string) *batchv1.Job {
+// Ethr Benchmark Definition.
+func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 	objectMeta := metav1.ObjectMeta{
 		Name:      clientJobName(cr),
 		Namespace: cr.Namespace,
 	}
 
-	// serverAddress := serverServiceName(cr)
-
-	iperfCmdLineArgs := []string{
-		"--client", serverAddress,
-		"--port", strconv.Itoa(Iperf3ServerPort),
+	ethrCmdLineArgs := []string{
+		"-c", serverAddress,
 	}
 
-	if cr.Spec.UDP {
-		iperfCmdLineArgs = append(iperfCmdLineArgs, "--udp")
-	}
-
-	iperfCmdLineArgs = append(iperfCmdLineArgs,
+	ethrCmdLineArgs = append(ethrCmdLineArgs,
 		qsplit.ToStrings([]byte(cr.Spec.ClientConfiguration.CmdLineArgs))...)
 
-	job := k8s.NewPerfJob(objectMeta, "iperf3-client", cr.Spec.Image,
+	job := k8s.NewPerfJob(objectMeta, "ethr-client", cr.Spec.Image,
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
+
+	if cr.Spec.Log {
+		volumes := []corev1.Volume{
+			corev1.Volume{
+				Name: "output-volume",
+				VolumeSource: corev1.VolumeSource{
+					HostPath: &corev1.HostPathVolumeSource{
+						Path: "/tmp",
+					},
+				},
+			},
+		}
+		volumeMounts := []corev1.VolumeMount{
+			corev1.VolumeMount{
+				Name:      "output-volume",
+				MountPath: "/tmp",
+			},
+		}
+
+		job.Spec.Template.Spec.Volumes = volumes
+		job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
+	}
+
 	backoffLimit := int32(6)
 	job.Spec.BackoffLimit = &backoffLimit
-	job.Spec.Template.Spec.Containers[0].Args = iperfCmdLineArgs
+	job.Spec.Template.Spec.Containers[0].Args = ethrCmdLineArgs
 	job.Spec.Template.Spec.HostNetwork = cr.Spec.ClientConfiguration.HostNetwork
 
 	return job

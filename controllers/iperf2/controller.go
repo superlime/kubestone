@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package iperf2
 
 import (
 	"context"
@@ -34,21 +34,21 @@ type Reconciler struct {
 	Log logr.Logger
 }
 
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s/finalizers,verbs=update
+// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=Iperf2s,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=Iperf2s/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=Iperf2s/finalizers,verbs=update
 
-// Reconcile Iperf3 Benchmark Requests by creating:
-//   - iperf3 server deployment
-//   - iperf3 server service
-//   - iperf3 client pod
-// The creation of iperf3 client pod is postponed until the server
-// deployment completes. Once the iperf3 client pod is completed,
+// Reconcile Iperf2 Benchmark Requests by creating:
+//   - iperf2 server deployment
+//   - iperf2 server service
+//   - iperf2 client pod
+// The creation of iperf2 client pod is postponed until the server
+// deployment completes. Once the iperf2 client pod is completed,
 // the server deployment and service objects are removed from k8s.
 func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 
-	var cr perfv1alpha1.Iperf3
+	var cr perfv1alpha1.Iperf2
 	if err := r.K8S.Client.Get(ctx, req.NamespacedName, &cr); err != nil {
 		return ctrl.Result{}, k8s.IgnoreNotFound(err)
 	}
@@ -120,9 +120,9 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
-// SetupWithManager registers the Iperf3Reconciler with the provided manager
+// SetupWithManager registers the Iperf2Reconciler with the provided manager
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&perfv1alpha1.Iperf3{}).
+		For(&perfv1alpha1.Iperf2{}).
 		Complete(r)
 }

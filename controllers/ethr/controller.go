@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package ethr
 
 import (
 	"context"
@@ -34,21 +34,21 @@ type Reconciler struct {
 	Log logr.Logger
 }
 
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s/finalizers,verbs=update
+// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=Ethrs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=Ethrs/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=Ethrs/finalizers,verbs=update
 
-// Reconcile Iperf3 Benchmark Requests by creating:
-//   - iperf3 server deployment
-//   - iperf3 server service
-//   - iperf3 client pod
-// The creation of iperf3 client pod is postponed until the server
-// deployment completes. Once the iperf3 client pod is completed,
+// Reconcile Ethr Benchmark Requests by creating:
+//   - ethr server deployment
+//   - ethr server service
+//   - ethr client pod
+// The creation of ethr client pod is postponed until the server
+// deployment completes. Once the ethr client pod is completed,
 // the server deployment and service objects are removed from k8s.
 func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 
-	var cr perfv1alpha1.Iperf3
+	var cr perfv1alpha1.Ethr
 	if err := r.K8S.Client.Get(ctx, req.NamespacedName, &cr); err != nil {
 		return ctrl.Result{}, k8s.IgnoreNotFound(err)
 	}
@@ -63,6 +63,11 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
+	configMap := NewConfigMap(&cr)
+	if err := r.K8S.CreateWithReference(ctx, configMap, &cr); err != nil {
+		return ctrl.Result{}, err
+	}
+	
 	serverDeployment := NewServerDeployment(&cr)
 	if err := r.K8S.CreateWithReference(ctx, serverDeployment, &cr); err != nil {
 		return ctrl.Result{}, err
@@ -120,9 +125,9 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
-// SetupWithManager registers the Iperf3Reconciler with the provided manager
+// SetupWithManager registers the EthrReconciler with the provided manager
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&perfv1alpha1.Iperf3{}).
+		For(&perfv1alpha1.Ethr{}).
 		Complete(r)
 }

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package iperf2
 
 import (
 	"strconv"
@@ -29,7 +29,7 @@ import (
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;create;delete
 
-func clientJobName(cr *perfv1alpha1.Iperf3) string {
+func clientJobName(cr *perfv1alpha1.Iperf2) string {
 	// Should not match with service name as the pod's
 	// hostname is set to it's name. If the two matches
 	// the destination ip will resolve to 127.0.0.1 and
@@ -37,20 +37,18 @@ func clientJobName(cr *perfv1alpha1.Iperf3) string {
 	return serverServiceName(cr) + "-client"
 }
 
-// NewClientJob creates an Iperf3 Client Job (targeting the
+// NewClientJob creates an Iperf2 Client Job (targeting the
 // Server Deployment via the Server Service) from the provided
-// IPerf3 Benchmark Definition.
-func NewClientJob(cr *perfv1alpha1.Iperf3, serverAddress string) *batchv1.Job {
+// Iperf2 Benchmark Definition.
+func NewClientJob(cr *perfv1alpha1.Iperf2, serverAddress string) *batchv1.Job {
 	objectMeta := metav1.ObjectMeta{
 		Name:      clientJobName(cr),
 		Namespace: cr.Namespace,
 	}
 
-	// serverAddress := serverServiceName(cr)
-
 	iperfCmdLineArgs := []string{
 		"--client", serverAddress,
-		"--port", strconv.Itoa(Iperf3ServerPort),
+		"--port", strconv.Itoa(Iperf2ServerPort),
 	}
 
 	if cr.Spec.UDP {
@@ -60,7 +58,7 @@ func NewClientJob(cr *perfv1alpha1.Iperf3, serverAddress string) *batchv1.Job {
 	iperfCmdLineArgs = append(iperfCmdLineArgs,
 		qsplit.ToStrings([]byte(cr.Spec.ClientConfiguration.CmdLineArgs))...)
 
-	job := k8s.NewPerfJob(objectMeta, "iperf3-client", cr.Spec.Image,
+	job := k8s.NewPerfJob(objectMeta, "iperf2-client", cr.Spec.Image,
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
 	backoffLimit := int32(6)
 	job.Spec.BackoffLimit = &backoffLimit

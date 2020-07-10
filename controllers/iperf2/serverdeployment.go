@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package iperf2
 
 import (
-	"strconv"
-	
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,23 +28,23 @@ import (
 	"github.com/firepear/qsplit"
 )
 
-// Iperf3ServerPort is the TCP or UDP port where
-// the iperf3 server deployment and service listens
-const Iperf3ServerPort = 5201
+// Iperf2ServerPort is the TCP or UDP port where
+// the iperf2 server deployment and service listens
+const Iperf2ServerPort = 5001
 
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;create;delete;watch
 
-func serverDeploymentName(cr *perfv1alpha1.Iperf3) string {
+func serverDeploymentName(cr *perfv1alpha1.Iperf2) string {
 	return cr.Name
 }
 
-// NewServerDeployment create a iperf3 server deployment from the
-// provided Iperf3 Benchmark Definition.
-func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
+// NewServerDeployment create a iperf2 server deployment from the
+// provided Iperf2 Benchmark Definition.
+func NewServerDeployment(cr *perfv1alpha1.Iperf2) *appsv1.Deployment {
 	replicas := int32(1)
 
 	labels := map[string]string{
-		"kubestone.xridge.io/app":     "iperf3",
+		"kubestone.xridge.io/app":     "iperf2",
 		"kubestone.xridge.io/cr-name": cr.Name,
 	}
 	// Let's be nice and don't mutate CRs label field
@@ -54,8 +53,8 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
 	}
 
 	iperfCmdLineArgs := []string{
-		"--server",
-		"--port", strconv.Itoa(Iperf3ServerPort)}
+		"-s",
+	}
 
 	protocol := corev1.Protocol(corev1.ProtocolTCP)
 	if cr.Spec.UDP {
@@ -94,19 +93,19 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
 							Name:            "server",
 							Image:           cr.Spec.Image.Name,
 							ImagePullPolicy: corev1.PullPolicy(cr.Spec.Image.PullPolicy),
-							Command:         []string{"iperf3"},
+							Command:         []string{"iperf"},
 							Args:            iperfCmdLineArgs,
 							Ports: []corev1.ContainerPort{
 								{
 									Name:          "iperf-server",
-									ContainerPort: Iperf3ServerPort,
+									ContainerPort: Iperf2ServerPort,
 									Protocol:      protocol,
 								},
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									TCPSocket: &corev1.TCPSocketAction{
-										Port: intstr.FromInt(Iperf3ServerPort),
+										Port: intstr.FromInt(Iperf2ServerPort),
 									},
 								},
 								InitialDelaySeconds: 5,

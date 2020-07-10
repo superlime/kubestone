@@ -14,38 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package ping
 
 import (
-	"strconv"
-	
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 
 	perfv1alpha1 "github.com/xridge/kubestone/api/v1alpha1"
-
-	"k8s.io/apimachinery/pkg/util/intstr"
-	"github.com/firepear/qsplit"
 )
-
-// Iperf3ServerPort is the TCP or UDP port where
-// the iperf3 server deployment and service listens
-const Iperf3ServerPort = 5201
 
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;create;delete;watch
 
-func serverDeploymentName(cr *perfv1alpha1.Iperf3) string {
+func serverDeploymentName(cr *perfv1alpha1.Ping) string {
 	return cr.Name
 }
 
-// NewServerDeployment create a iperf3 server deployment from the
-// provided Iperf3 Benchmark Definition.
-func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
+// NewServerDeployment create a ping server deployment from the
+// provided Ping Benchmark Definition.
+func NewServerDeployment(cr *perfv1alpha1.Ping) *appsv1.Deployment {
 	replicas := int32(1)
 
 	labels := map[string]string{
-		"kubestone.xridge.io/app":     "iperf3",
+		"kubestone.xridge.io/app":     "ping",
 		"kubestone.xridge.io/cr-name": cr.Name,
 	}
 	// Let's be nice and don't mutate CRs label field
@@ -53,25 +46,14 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
 		labels[k] = v
 	}
 
-	iperfCmdLineArgs := []string{
+	pingCmdLineArgs := []string{
 		"--server",
-		"--port", strconv.Itoa(Iperf3ServerPort)}
-
-	protocol := corev1.Protocol(corev1.ProtocolTCP)
-	if cr.Spec.UDP {
-		iperfCmdLineArgs = append(iperfCmdLineArgs, "--udp")
-		protocol = corev1.Protocol(corev1.ProtocolUDP)
-	}
-
-	iperfCmdLineArgs = append(iperfCmdLineArgs,
-		qsplit.ToStrings([]byte(cr.Spec.ServerConfiguration.CmdLineArgs))...)
-
+		"--port", "5201"}
 
 	deployment := appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        serverDeploymentName(cr),
-			Namespace:   cr.Namespace,
-			Annotations: cr.Spec.ServerConfiguration.PodConfigurationSpec.Annotations,
+			Name:      serverDeploymentName(cr),
+			Namespace: cr.Namespace,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
@@ -80,8 +62,7 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
 			Replicas: &replicas,
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:      labels,
-					Annotations: cr.Spec.ServerConfiguration.PodConfigurationSpec.Annotations,
+					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
 					ImagePullSecrets: []corev1.LocalObjectReference{
@@ -91,22 +72,22 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
 					},
 					Containers: []corev1.Container{
 						{
-							Name:            "server",
-							Image:           cr.Spec.Image.Name,
+							Name: "server",
+							Image: "bwatada/iperf2:latest",
+							Command: []string{"iperf"},
+							Args: pingCmdLineArgs,
 							ImagePullPolicy: corev1.PullPolicy(cr.Spec.Image.PullPolicy),
-							Command:         []string{"iperf3"},
-							Args:            iperfCmdLineArgs,
 							Ports: []corev1.ContainerPort{
 								{
-									Name:          "iperf-server",
-									ContainerPort: Iperf3ServerPort,
-									Protocol:      protocol,
+									Name:          "ping-server",
+									ContainerPort: perfv1alpha1.PingPort,
+									Protocol:      corev1.ProtocolTCP,
 								},
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									TCPSocket: &corev1.TCPSocketAction{
-										Port: intstr.FromInt(Iperf3ServerPort),
+										Port: intstr.FromInt(perfv1alpha1.PingPort),
 									},
 								},
 								InitialDelaySeconds: 5,

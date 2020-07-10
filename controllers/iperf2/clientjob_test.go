@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package iperf2
 
 import (
 	"strconv"
@@ -29,16 +29,16 @@ import (
 
 var _ = Describe("Client Pod", func() {
 	Describe("created from CR", func() {
-		var cr ksapi.Iperf3
+		var cr ksapi.Iperf2
 		var job *batchv1.Job
 
 		BeforeEach(func() {
-			cr = ksapi.Iperf3{
-				Spec: ksapi.Iperf3Spec{
+			cr = ksapi.Iperf2{
+				Spec: ksapi.Iperf2Spec{
 					Image: ksapi.ImageSpec{
 						Name: "foo",
 					},
-					ClientConfiguration: ksapi.Iperf3ConfigurationSpec{
+					ClientConfiguration: ksapi.Iperf2ConfigurationSpec{
 						CmdLineArgs: "--testing --things",
 						HostNetwork: true,
 						PodConfigurationSpec: ksapi.PodConfigurationSpec{

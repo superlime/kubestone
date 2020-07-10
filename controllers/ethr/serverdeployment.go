@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package ethr
 
 import (
-	"strconv"
-	
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,23 +28,22 @@ import (
 	"github.com/firepear/qsplit"
 )
 
-// Iperf3ServerPort is the TCP or UDP port where
-// the iperf3 server deployment and service listens
-const Iperf3ServerPort = 5201
+// Port for readiness check
+const EthrReadinessPort = 80
 
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;create;delete;watch
 
-func serverDeploymentName(cr *perfv1alpha1.Iperf3) string {
+func serverDeploymentName(cr *perfv1alpha1.Ethr) string {
 	return cr.Name
 }
 
-// NewServerDeployment create a iperf3 server deployment from the
-// provided Iperf3 Benchmark Definition.
-func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
+// NewServerDeployment create a ethr server deployment from the
+// provided Ethr Benchmark Definition.
+func NewServerDeployment(cr *perfv1alpha1.Ethr) *appsv1.Deployment {
 	replicas := int32(1)
 
 	labels := map[string]string{
-		"kubestone.xridge.io/app":     "iperf3",
+		"kubestone.xridge.io/app":     "ethr",
 		"kubestone.xridge.io/cr-name": cr.Name,
 	}
 	// Let's be nice and don't mutate CRs label field
@@ -53,17 +51,13 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
 		labels[k] = v
 	}
 
-	iperfCmdLineArgs := []string{
-		"--server",
-		"--port", strconv.Itoa(Iperf3ServerPort)}
-
-	protocol := corev1.Protocol(corev1.ProtocolTCP)
-	if cr.Spec.UDP {
-		iperfCmdLineArgs = append(iperfCmdLineArgs, "--udp")
-		protocol = corev1.Protocol(corev1.ProtocolUDP)
+	ethrCmdLineArgs := []string{
+		"-s",
 	}
 
-	iperfCmdLineArgs = append(iperfCmdLineArgs,
+	protocol := corev1.Protocol(corev1.ProtocolTCP)
+
+	ethrCmdLineArgs = append(ethrCmdLineArgs,
 		qsplit.ToStrings([]byte(cr.Spec.ServerConfiguration.CmdLineArgs))...)
 
 
@@ -94,19 +88,44 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf3) *appsv1.Deployment {
 							Name:            "server",
 							Image:           cr.Spec.Image.Name,
 							ImagePullPolicy: corev1.PullPolicy(cr.Spec.Image.PullPolicy),
-							Command:         []string{"iperf3"},
-							Args:            iperfCmdLineArgs,
+							Command:         []string{"ethr"},
+							Args:            ethrCmdLineArgs,
 							Ports: []corev1.ContainerPort{
 								{
-									Name:          "iperf-server",
-									ContainerPort: Iperf3ServerPort,
+									Name:          "ethr-server-tb",
+									ContainerPort: perfv1alpha1.TCPBandwidthPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-tc",
+									ContainerPort: perfv1alpha1.TCPConnectionsPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-tl",
+									ContainerPort: perfv1alpha1.TCPLatencyPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-hb",
+									ContainerPort: perfv1alpha1.HTTPBandwidthPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-hsb",
+									ContainerPort: perfv1alpha1.HTTPSBandwidthPort,
+									Protocol:      protocol,
+								},
+								{
+									Name:          "ethr-server-hl",
+									ContainerPort: perfv1alpha1.HTTPLatencyPort,
 									Protocol:      protocol,
 								},
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									TCPSocket: &corev1.TCPSocketAction{
-										Port: intstr.FromInt(Iperf3ServerPort),
+										Port: intstr.FromInt(perfv1alpha1.TCPBandwidthPort),
 									},
 								},
 								InitialDelaySeconds: 5,

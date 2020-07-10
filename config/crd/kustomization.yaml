@@ -3,6 +3,7 @@
 # It should be run by config/default
 resources:
 - bases/perf.kubestone.xridge.io_iperf3s.yaml
+- bases/perf.kubestone.xridge.io_iperf2s.yaml
 - bases/perf.kubestone.xridge.io_fios.yaml
 - bases/perf.kubestone.xridge.io_sysbenches.yaml
 - bases/perf.kubestone.xridge.io_drills.yaml
@@ -13,6 +14,8 @@ resources:
 - bases/perf.kubestone.xridge.io_ycsbbenches.yaml
 - bases/perf.kubestone.xridge.io_ocplogtests.yaml
 - bases/perf.kubestone.xridge.io_s3benches.yaml
+- bases/perf.kubestone.xridge.io_ping.yaml
+- bases/perf.kubestone.xridge.io_ethr.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:

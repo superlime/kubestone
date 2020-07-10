@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package iperf3
+package ping
 
 import (
 	"context"
@@ -34,21 +34,17 @@ type Reconciler struct {
 	Log logr.Logger
 }
 
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=perf.kubestone.xridge.io,resources=iperf3s/finalizers,verbs=update
-
-// Reconcile Iperf3 Benchmark Requests by creating:
-//   - iperf3 server deployment
-//   - iperf3 server service
-//   - iperf3 client pod
-// The creation of iperf3 client pod is postponed until the server
-// deployment completes. Once the iperf3 client pod is completed,
+// Reconcile Ping Benchmark Requests by creating:
+//   - ping server deployment
+//   - ping server service
+//   - ping client pod
+// The creation of ping client pod is postponed until the server
+// deployment completes. Once the ping client pod is completed,
 // the server deployment and service objects are removed from k8s.
 func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 
-	var cr perfv1alpha1.Iperf3
+	var cr perfv1alpha1.Ping
 	if err := r.K8S.Client.Get(ctx, req.NamespacedName, &cr); err != nil {
 		return ctrl.Result{}, k8s.IgnoreNotFound(err)
 	}
@@ -73,9 +69,12 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	endpointReady, err := r.K8S.IsEndpointReady(types.NamespacedName{
-		Namespace: cr.Namespace,
-		Name:      cr.Name})
+	endpointReady, err := r.K8S.IsEndpointReady(
+		types.NamespacedName{
+			Namespace: cr.Namespace,
+			Name:      cr.Name,
+		},
+	)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -120,9 +119,9 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
-// SetupWithManager registers the Iperf3Reconciler with the provided manager
+// SetupWithManager registers the QperfReconciler with the provided manager
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&perfv1alpha1.Iperf3{}).
+		For(&perfv1alpha1.Ping{}).
 		Complete(r)
 }
