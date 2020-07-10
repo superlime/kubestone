@@ -65,7 +65,7 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 			Name: "output-volume",
 			VolumeSource: corev1.VolumeSource{
 				HostPath: &corev1.HostPathVolumeSource{
-					Path: "\\tmp",
+					Path: "/tmp",
 				},
 			},
 		},
@@ -73,7 +73,7 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 	volumeMounts := []corev1.VolumeMount{
 		corev1.VolumeMount{
 			Name:      "output-volume",
-			MountPath: "\\tmp\\results",
+			MountPath: "/tmp",
 		},
 	}
 
