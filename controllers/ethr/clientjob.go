@@ -50,38 +50,37 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 		"-c", serverAddress,
 	}
 
-	if cr.Spec.UDP {
-		ethrCmdLineArgs = append(ethrCmdLineArgs, "--udp")
-	}
-
 	ethrCmdLineArgs = append(ethrCmdLineArgs,
 		qsplit.ToStrings([]byte(cr.Spec.ClientConfiguration.CmdLineArgs))...)
 
 	job := k8s.NewPerfJob(objectMeta, "ethr-client", cr.Spec.Image,
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
 
-	volumes := []corev1.Volume{
-		corev1.Volume{
-			Name: "output-volume",
-			VolumeSource: corev1.VolumeSource{
-				HostPath: &corev1.HostPathVolumeSource{
-					Path: "/tmp",
+	if cr.Spec.Log {
+		volumes := []corev1.Volume{
+			corev1.Volume{
+				Name: "output-volume",
+				VolumeSource: corev1.VolumeSource{
+					HostPath: &corev1.HostPathVolumeSource{
+						Path: "/tmp",
+					},
 				},
 			},
-		},
-	}
-	volumeMounts := []corev1.VolumeMount{
-		corev1.VolumeMount{
-			Name:      "output-volume",
-			MountPath: "/tmp",
-		},
+		}
+		volumeMounts := []corev1.VolumeMount{
+			corev1.VolumeMount{
+				Name:      "output-volume",
+				MountPath: "/tmp",
+			},
+		}
+
+		job.Spec.Template.Spec.Volumes = volumes
+		job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
 	}
 
 	backoffLimit := int32(6)
 	job.Spec.BackoffLimit = &backoffLimit
 	job.Spec.Template.Spec.Containers[0].Args = ethrCmdLineArgs
-	job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
-	job.Spec.Template.Spec.Volumes = volumes
 	job.Spec.Template.Spec.HostNetwork = cr.Spec.ClientConfiguration.HostNetwork
 
 	return job

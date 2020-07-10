@@ -36,9 +36,6 @@ func NewServerService(cr *perfv1alpha1.Ethr) *corev1.Service {
 		"kubestone.xridge.io/cr-name": cr.Name,
 	}
 	protocol := corev1.Protocol(corev1.ProtocolTCP)
-	if cr.Spec.UDP {
-		protocol = corev1.Protocol(corev1.ProtocolUDP)
-	}
 	service := corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        serverServiceName(cr),

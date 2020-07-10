@@ -1524,9 +1524,8 @@ spec:
                       type: object
                   type: object
               type: object
-            udp:
-              description: UDP to use rather than TCP. If enabled the '--udp' parameter
-                is added to iperf command line args
+            log:
+              description: If enabled the controller will create a volume and send the log file to the host node.
               type: boolean
           required:
           - image

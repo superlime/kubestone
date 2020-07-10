@@ -56,10 +56,6 @@ func NewServerDeployment(cr *perfv1alpha1.Ethr) *appsv1.Deployment {
 	}
 
 	protocol := corev1.Protocol(corev1.ProtocolTCP)
-	if cr.Spec.UDP {
-		ethrCmdLineArgs = append(ethrCmdLineArgs, "--udp")
-		protocol = corev1.Protocol(corev1.ProtocolUDP)
-	}
 
 	ethrCmdLineArgs = append(ethrCmdLineArgs,
 		qsplit.ToStrings([]byte(cr.Spec.ServerConfiguration.CmdLineArgs))...)
