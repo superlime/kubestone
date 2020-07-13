@@ -1526,7 +1526,13 @@ spec:
               type: object
             log:
               description: If enabled the controller will create a volume and send the log file to the host node.
-              type: boolean
+              enabled: boolean
+              volume: 
+                name: string
+                path: string
+              volumemount: 
+                name: string
+                path: string
           required:
           - image
           type: object

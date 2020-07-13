@@ -84,6 +84,21 @@ type VolumeSpec struct {
 	PersistentVolumeClaimSpec *corev1.PersistentVolumeClaimSpec `json:"persistentVolumeClaimSpec,omitempty"`
 }
 
+type LogSpec struct {
+	Enabled bool `json:"enabled"`
+
+	Volume VolumeInfo `json:"volume"`
+
+	VolumeMount VolumeInfo `json:"volumemount"`
+}
+
+type VolumeInfo struct {
+	//The name of the volume 
+	Name string `json:"name"`
+
+	//The path that the volume should be bound to
+	Path string `json:"path"`
+}
 // GeneratedPVC is the pre-defined name to be used as ClaimName
 // when the PVC is created on the fly for the benchmark.
 const GeneratedPVC = "GENERATED"

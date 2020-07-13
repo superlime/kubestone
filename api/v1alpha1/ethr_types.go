@@ -57,13 +57,9 @@ type EthrSpec struct {
 	// +optional
 	ClientConfiguration EthrConfigurationSpec `json:"clientConfiguration,omitempty"`
 
-	// Volume contains the configuration for the volume that the ethr job should
-	// run on.
-	Volume VolumeSpec `json:"volume"`
-
 	// If enabled the controller will create a volume and send the log file to the host node.
 	// +optional
-	Log bool `json:"log,omitempty"`
+	Log LogSpec `json:"log,omitempty"`
 }
 
 // +kubebuilder:object:root=true

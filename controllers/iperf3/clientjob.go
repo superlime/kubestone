@@ -65,6 +65,8 @@ func NewClientJob(cr *perfv1alpha1.Iperf3, serverAddress string) *batchv1.Job {
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
 
 	if cr.Spec.Log {
+		iperfCmdLineArgs = append(iperfCmdLineArgs, "--logfile")
+		iperfCmdLineArgs = append(iperfCmdLineArgs, "/tmp/outfile.log")
 		volumes := []corev1.Volume{
 			corev1.Volume{
 				Name: "output-volume",
@@ -85,7 +87,7 @@ func NewClientJob(cr *perfv1alpha1.Iperf3, serverAddress string) *batchv1.Job {
 		job.Spec.Template.Spec.Volumes = volumes
 		job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
 	}
-	
+
 	backoffLimit := int32(6)
 	job.Spec.BackoffLimit = &backoffLimit
 	job.Spec.Template.Spec.Containers[0].Args = iperfCmdLineArgs
