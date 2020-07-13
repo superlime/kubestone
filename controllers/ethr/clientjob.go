@@ -62,19 +62,13 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 		ethrCmdLineArgs = append(ethrCmdLineArgs, "-o")
 
 		var outPath strings.Builder
-		hostPath := strings.NewReader(cr.Spec.Log.VolumeMount.Path)
-		fileName := strings.NewReader(cr.Spec.Log.FileName)
 
-		for i := 0; i < hostPath.Len(); i++ {
-			outPath.WriteString(hostPath.Read(i))
-		}
+		outPath.WriteString(cr.Spec.Log.VolumeMount.Path)
+		outPath.WriteString(cr.Spec.Log.FileName)
 
-		for j := 0; j < hostPath.Len(); j++ {
-			outPath.WriteString(fileName.Read(j))
-		}
 		
-		ethrCmdLineArgs = append(ethrCmdLineArgs, outPath)
-		
+		ethrCmdLineArgs = append(ethrCmdLineArgs, cr.Spec.Log.VolumeMount.Path+cr.Spec.Log.FileName)
+
 		volumes := []corev1.Volume{
 			corev1.Volume{
 				Name: cr.Spec.Log.Volume.Name,
