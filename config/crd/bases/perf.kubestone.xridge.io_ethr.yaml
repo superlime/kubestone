@@ -1526,13 +1526,31 @@ spec:
               type: object
             log:
               description: If enabled the controller will create a volume and send the log file to the host node.
-              enabled: boolean
-              volume: 
-                name: string
-                path: string
-              volumemount: 
-                name: string
-                path: string
+              properties:
+                enabled:
+                  description: Enabled status of the volume
+                  type: boolean
+                volume: 
+                  description: The volume on the client pod
+                  properties:
+                    name:
+                      description: The name of the volume 
+                      type: string
+                    path:
+                      description: The pathname
+                      type: string
+                  type: object
+                volumemount: 
+                  description: The host volume
+                  properties:
+                    name:
+                      description: The name of the volume 
+                      type: string
+                    path:
+                      description: The pathname
+                      type: string
+                  type: object
+              type: object
           required:
           - image
           type: object
