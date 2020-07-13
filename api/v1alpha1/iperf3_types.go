@@ -55,6 +55,10 @@ type Iperf3Spec struct {
 	// If enabled the '--udp' parameter is added to iperf command line args
 	// +optional
 	UDP bool `json:"udp,omitempty"`
+
+	// If enabled the controller will create a volume and send the log file to the host node.
+	// +optional
+	Log LogSpec `json:"log,omitempty"`
 }
 
 // +kubebuilder:object:root=true

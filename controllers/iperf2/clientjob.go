@@ -18,9 +18,11 @@ package iperf2
 
 import (
 	"strconv"
+	"strings"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/firepear/qsplit"
 	perfv1alpha1 "github.com/xridge/kubestone/api/v1alpha1"
@@ -60,6 +62,36 @@ func NewClientJob(cr *perfv1alpha1.Iperf2, serverAddress string) *batchv1.Job {
 
 	job := k8s.NewPerfJob(objectMeta, "iperf2-client", cr.Spec.Image,
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
+
+		if cr.Spec.Log.Enabled {
+
+			var outPath strings.Builder
+			
+			outPath.WriteString(cr.Spec.Log.VolumeMount.Path)
+			outPath.WriteString(cr.Spec.Log.FileName)
+
+		
+			volumes := []corev1.Volume{
+				corev1.Volume{
+					Name: cr.Spec.Log.Volume.Name,
+					VolumeSource: corev1.VolumeSource{
+						HostPath: &corev1.HostPathVolumeSource{
+							Path: cr.Spec.Log.Volume.Path,
+						},
+					},
+				},
+			}
+			volumeMounts := []corev1.VolumeMount{
+				corev1.VolumeMount{
+					Name:      cr.Spec.Log.VolumeMount.Name,
+					MountPath: cr.Spec.Log.VolumeMount.Path,
+				},
+			}
+	
+			job.Spec.Template.Spec.Volumes = volumes
+			job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
+		}
+
 	backoffLimit := int32(6)
 	job.Spec.BackoffLimit = &backoffLimit
 	job.Spec.Template.Spec.Containers[0].Args = iperfCmdLineArgs
