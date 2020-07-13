@@ -85,6 +85,7 @@ type VolumeSpec struct {
 }
 
 type LogSpec struct {
+	FileName string `json:"filename"`
 	Enabled bool `json:"enabled"`
 
 	Volume VolumeInfo `json:"volume"`

@@ -1531,6 +1531,9 @@ spec:
             log:
               description: If enabled the controller will create a volume and send the log file to the host node.
               properties:
+                filename:
+                  description: The name of the file that should be outputted
+                  type: string
                 enabled:
                   description: Enabled status of the volume
                   type: boolean

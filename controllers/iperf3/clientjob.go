@@ -64,23 +64,38 @@ func NewClientJob(cr *perfv1alpha1.Iperf3, serverAddress string) *batchv1.Job {
 	job := k8s.NewPerfJob(objectMeta, "iperf3-client", cr.Spec.Image,
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
 
-	if cr.Spec.Log {
+	if cr.Spec.Log.Enabled {
 		iperfCmdLineArgs = append(iperfCmdLineArgs, "--logfile")
-		iperfCmdLineArgs = append(iperfCmdLineArgs, "/tmp/outfile.log")
+
+
+		var outPath strings.Builder
+		hostPath := strings.NewReader(cr.Spec.Log.VolumeMount.Path)
+		fileName := strings.NewReader(cr.Spec.Log.FileName)
+
+		for i := 0; i < hostPath.Len(); i++ {
+			outPath.WriteString(hostPath.Read(i))
+		}
+
+		for j := 0; j < hostPath.Len(); j++ {
+			outPath.WriteString(fileName.Read(j))
+		}
+		
+
+		iperfCmdLineArgs = append(iperfCmdLineArgs, outPath)
 		volumes := []corev1.Volume{
 			corev1.Volume{
-				Name: "output-volume",
+				Name: cr.Spec.Log.Volume.Name,
 				VolumeSource: corev1.VolumeSource{
 					HostPath: &corev1.HostPathVolumeSource{
-						Path: "/tmp",
+						Path: cr.Spec.Log.Volume.Path,
 					},
 				},
 			},
 		}
 		volumeMounts := []corev1.VolumeMount{
 			corev1.VolumeMount{
-				Name:      "output-volume",
-				MountPath: "/tmp",
+				Name:      cr.Spec.Log.VolumeMount.Name,
+				MountPath: cr.Spec.Log.VolumeMount.Path,
 			},
 		}
 

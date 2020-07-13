@@ -17,6 +17,7 @@ limitations under the License.
 package ethr
 
 import (
+	"strings"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -57,8 +58,23 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
 
 	if cr.Spec.Log.Enabled {
+
 		ethrCmdLineArgs = append(ethrCmdLineArgs, "-o")
-		ethrCmdLineArgs = append(ethrCmdLineArgs, "/tmp/outfile.log")
+
+		var outPath strings.Builder
+		hostPath := strings.NewReader(cr.Spec.Log.VolumeMount.Path)
+		fileName := strings.NewReader(cr.Spec.Log.FileName)
+
+		for i := 0; i < hostPath.Len(); i++ {
+			outPath.WriteString(hostPath.Read(i))
+		}
+
+		for j := 0; j < hostPath.Len(); j++ {
+			outPath.WriteString(fileName.Read(j))
+		}
+		
+		ethrCmdLineArgs = append(ethrCmdLineArgs, outPath)
+		
 		volumes := []corev1.Volume{
 			corev1.Volume{
 				Name: cr.Spec.Log.Volume.Name,
