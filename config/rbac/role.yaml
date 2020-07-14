@@ -228,6 +228,32 @@ rules:
 - apiGroups:
   - perf.kubestone.xridge.io
   resources:
+  - ntttcps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - perf.kubestone.xridge.io
+  resources:
+  - ntttcps/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - perf.kubestone.xridge.io
+  resources:
+  - ntttcps/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - perf.kubestone.xridge.io
+  resources:
   - kafkabenches
   verbs:
   - create
