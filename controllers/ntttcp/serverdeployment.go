@@ -17,6 +17,7 @@ limitations under the License.
 package ntttcp
 
 import (
+	"fmt"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -50,7 +51,7 @@ func NewServerDeployment(cr *perfv1alpha1.Ntttcp) *appsv1.Deployment {
 	}
 
 	ntttcpCmdLineArgs := []string{
-		"-r", "-m", "1,*,0.0.0.0",
+		"-r", "-m", fmt.Sprintf("%s,%s,0.0.0.0", cr.Spec.Mapping.SessionCount, cr.Spec.Mapping.Processor),
 	}
 
 	protocol := corev1.Protocol(corev1.ProtocolTCP)

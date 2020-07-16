@@ -60,8 +60,15 @@ type NtttcpSpec struct {
 
 	// The command used to check pod readiness
 	ReadinessCmd []string `json:"readinesscmd"`
+
+	// The -m arg used to pass in session count, processor number, address
+	Mapping MappingSpec `json:"mapping"`
 }
 
+type MappingSpec struct {
+	SessionCount string `json:"sessioncount"`
+	Processor string `json:"processor"`
+}
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Running",type="boolean",JSONPath=".status.running"

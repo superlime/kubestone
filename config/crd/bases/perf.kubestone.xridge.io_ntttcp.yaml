@@ -1566,6 +1566,16 @@ spec:
               description: The command used to test port readiness.
               type: array
               items: string
+            mapping:
+              description: The mapping tuple passed to the -m argument
+              type: object
+              properties:
+                sessioncount:
+                  description: The number of sessions on the processor.
+                  type: string
+                processor:
+                  description: The processor(s) to be used.
+                  type: string
           required:
           - image
           - port
