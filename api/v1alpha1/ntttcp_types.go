@@ -57,6 +57,9 @@ type NtttcpSpec struct {
 
 	// The port used for both the server and client
 	Port int32 `json:"port"`
+
+	// The command used to check pod readiness
+	ReadinessCmd string `json:"readinesscmd"`
 }
 
 // +kubebuilder:object:root=true

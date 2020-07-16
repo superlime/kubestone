@@ -24,7 +24,6 @@ import (
 
 	perfv1alpha1 "github.com/xridge/kubestone/api/v1alpha1"
 	"github.com/firepear/qsplit"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // Port for readiness check
@@ -51,7 +50,7 @@ func NewServerDeployment(cr *perfv1alpha1.Ntttcp) *appsv1.Deployment {
 	}
 
 	ntttcpCmdLineArgs := []string{
-		"-s",
+		"-r", "-m", "1,*,0.0.0.0",
 	}
 
 	protocol := corev1.Protocol(corev1.ProtocolTCP)
@@ -87,7 +86,7 @@ func NewServerDeployment(cr *perfv1alpha1.Ntttcp) *appsv1.Deployment {
 							Name:            "server",
 							Image:           cr.Spec.Image.Name,
 							ImagePullPolicy: corev1.PullPolicy(cr.Spec.Image.PullPolicy),
-							Command:         []string{"ntttcp"},
+							Command:         []string{"/run/ntttcp"},
 							Args:            ntttcpCmdLineArgs,
 							Ports: []corev1.ContainerPort{
 								{
@@ -98,8 +97,8 @@ func NewServerDeployment(cr *perfv1alpha1.Ntttcp) *appsv1.Deployment {
 							},
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
-									TCPSocket: &corev1.TCPSocketAction{
-										Port: intstr.FromInt(int(cr.Spec.Port)),
+									Exec: &corev1.ExecAction{
+										Command: []string{cr.Spec.ReadinessCmd},
 									},
 								},
 								InitialDelaySeconds: 5,

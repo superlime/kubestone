@@ -49,7 +49,8 @@ func NewClientJob(cr *perfv1alpha1.Ntttcp, serverAddress string) *batchv1.Job {
 	}
 
 	ntttcpCmdLineArgs := []string{
-		"-r", serverAddress,
+		"-s", "-m",
+		"1,*,"+serverAddress,
 	}
 	//port, processor, address ()
 	ntttcpCmdLineArgs = append(ntttcpCmdLineArgs,

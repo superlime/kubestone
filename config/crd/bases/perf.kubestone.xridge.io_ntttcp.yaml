@@ -1562,9 +1562,13 @@ spec:
               description: The port number used by the service.
               format: int32
               type: integer
+            readinesscmd:
+              description: The command used to test port readiness.
+              type: string
           required:
           - image
           - port
+          - readinesscmd
           type: object
         status:
           description: BenchmarkStatus describes the current state of the benchmark
