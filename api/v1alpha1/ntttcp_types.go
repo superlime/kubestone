@@ -59,7 +59,7 @@ type NtttcpSpec struct {
 	Port int32 `json:"port"`
 
 	// The command used to check pod readiness
-	ReadinessCmd string `json:"readinesscmd"`
+	ReadinessCmd []string `json:"readinesscmd"`
 }
 
 // +kubebuilder:object:root=true

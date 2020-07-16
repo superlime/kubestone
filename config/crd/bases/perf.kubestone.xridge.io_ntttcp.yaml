@@ -1564,7 +1564,8 @@ spec:
               type: integer
             readinesscmd:
               description: The command used to test port readiness.
-              type: string
+              type: array
+              items: string
           required:
           - image
           - port

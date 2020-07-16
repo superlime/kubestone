@@ -98,7 +98,7 @@ func NewServerDeployment(cr *perfv1alpha1.Ntttcp) *appsv1.Deployment {
 							ReadinessProbe: &corev1.Probe{
 								Handler: corev1.Handler{
 									Exec: &corev1.ExecAction{
-										Command: []string{cr.Spec.ReadinessCmd},
+										Command: cr.Spec.ReadinessCmd,
 									},
 								},
 								InitialDelaySeconds: 5,

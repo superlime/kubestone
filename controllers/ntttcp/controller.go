@@ -18,7 +18,7 @@ package ntttcp
 
 import (
 	"context"
-	"time"
+	
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -68,7 +68,6 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	time.Sleep(30000 * time.Millisecond)
 	serverService := NewServerService(&cr)
 	if err := r.K8S.CreateWithReference(ctx, serverService, &cr); err != nil {
 		return ctrl.Result{}, err
