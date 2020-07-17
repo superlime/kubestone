@@ -17,7 +17,6 @@ limitations under the License.
 package ethr
 
 import (
-	"strings"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -61,12 +60,6 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 
 		ethrCmdLineArgs = append(ethrCmdLineArgs, "-o")
 
-		var outPath strings.Builder
-
-		outPath.WriteString(cr.Spec.Log.VolumeMount.Path)
-		outPath.WriteString(cr.Spec.Log.FileName)
-
-		
 		ethrCmdLineArgs = append(ethrCmdLineArgs, cr.Spec.Log.VolumeMount.Path+cr.Spec.Log.FileName)
 
 		volumes := []corev1.Volume{

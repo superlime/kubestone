@@ -18,7 +18,6 @@ package iperf2
 
 import (
 	"strconv"
-	"strings"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -64,13 +63,8 @@ func NewClientJob(cr *perfv1alpha1.Iperf2, serverAddress string) *batchv1.Job {
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
 
 		if cr.Spec.Log.Enabled {
-
-			var outPath strings.Builder
-			
-			outPath.WriteString(cr.Spec.Log.VolumeMount.Path)
-			outPath.WriteString(cr.Spec.Log.FileName)
-
 		
+			iperfCmdLineArgs = append(iperfCmdLineArgs, "-o", cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName)
 			volumes := []corev1.Volume{
 				corev1.Volume{
 					Name: cr.Spec.Log.Volume.Name,
