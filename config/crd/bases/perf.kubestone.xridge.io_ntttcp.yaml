@@ -1565,7 +1565,8 @@ spec:
             readinesscmd:
               description: The command used to test port readiness.
               type: array
-              items: string
+              items: 
+                type: string
             mapping:
               description: The mapping tuple passed to the -m argument
               type: object
