@@ -18,8 +18,7 @@ package drill
 
 import (
 	"errors"
-	"fmt"
-
+	
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,9 +39,6 @@ func NewJob(cr *perfv1alpha1.Drill, configMap *corev1.ConfigMap) *batchv1.Job {
 		Namespace: cr.Namespace,
 	}
 
-	cmdLineArgs := fmt.Sprintf("%s --benchmark %s", cr.Spec.Options, cr.Spec.BenchmarkFile)
-	command := fmt.Sprintf("cd %s && %s %s", benchmarksDir, drill, cmdLineArgs)
-
 	volumes := []corev1.Volume{
 		corev1.Volume{
 			Name: "benchmarks",
@@ -62,10 +58,10 @@ func NewJob(cr *perfv1alpha1.Drill, configMap *corev1.ConfigMap) *batchv1.Job {
 		},
 	}
 
-	job := k8s.NewPerfJob(objectMeta, "fio", cr.Spec.Image, cr.Spec.PodConfig)
+	job := k8s.NewPerfJob(objectMeta, "drill", cr.Spec.Image, cr.Spec.PodConfig)
 	job.Spec.Template.Spec.Volumes = volumes
-	job.Spec.Template.Spec.Containers[0].Command = []string{"/bin/sh", "-xc"}
-	job.Spec.Template.Spec.Containers[0].Args = []string{command}
+	job.Spec.Template.Spec.Containers[0].Command = cr.Spec.Command
+	job.Spec.Template.Spec.Containers[0].Args = cr.Spec.Args
 	job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
 	return job
 }

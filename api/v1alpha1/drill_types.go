@@ -44,6 +44,12 @@ type DrillSpec struct {
 	// pod labels and scheduling policies (affinity, toleration, node selector...)
 	// +optional
 	PodConfig PodConfigurationSpec `json:"podConfig,omitempty"`
+
+	// The Command for the pod to be run on
+	Command []string `json:"command"`
+
+	// The args to be passed
+	Args []string `json:"args"`
 }
 
 // +kubebuilder:object:root=true

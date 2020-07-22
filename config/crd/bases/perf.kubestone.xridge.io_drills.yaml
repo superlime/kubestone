@@ -41,6 +41,12 @@ spec:
             benchmarkFile, and options is passed to drill as follows: drill [OPTIONS]
             --benchmark <benchmarkFile>'
           properties:
+            command:
+              description: The command for the pod to be run on
+              type: string
+            args:
+              description: The args to be passed to the pod
+              type: string
             benchmarkFile:
               description: BenchmarkFile is the entry point file (passed to --benchmark)
                 specified to drill.
