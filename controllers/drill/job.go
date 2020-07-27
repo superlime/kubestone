@@ -18,7 +18,7 @@ package drill
 
 import (
 	"errors"
-	
+
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -56,6 +56,32 @@ func NewJob(cr *perfv1alpha1.Drill, configMap *corev1.ConfigMap) *batchv1.Job {
 			Name:      "benchmarks",
 			MountPath: benchmarksDir,
 		},
+	}
+
+	if cr.Spec.Log.Enabled {
+		args := cr.Spec.Args
+		args = append(args, "--report")
+		args = append(args, cr.Spec.Log.VolumeMount.Path+cr.Spec.Log.FileName)
+
+		volumes = append(
+			volumes, 
+			corev1.Volume{
+				Name: cr.Spec.Log.Volume.Name,
+				VolumeSource: corev1.VolumeSource{
+					HostPath: &corev1.HostPathVolumeSource{
+						Path: cr.Spec.Log.Volume.Path,
+					},
+				},
+			},
+		)
+
+		volumeMounts = append(
+			volumeMounts,
+			corev1.VolumeMount{
+				Name:      cr.Spec.Log.VolumeMount.Name,
+				MountPath: cr.Spec.Log.VolumeMount.Path,
+			},
+		)
 	}
 
 	job := k8s.NewPerfJob(objectMeta, "drill", cr.Spec.Image, cr.Spec.PodConfig)

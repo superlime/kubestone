@@ -50,6 +50,10 @@ type DrillSpec struct {
 
 	// The args to be passed
 	Args []string `json:"args"`
+
+	// If enabled the controller will create a volume and send the log file to the host node.
+	// +optional
+	Log LogSpec `json:"log,omitempty"`
 }
 
 // +kubebuilder:object:root=true
