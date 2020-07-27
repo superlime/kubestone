@@ -41,6 +41,12 @@ spec:
             benchmarkFile, and options is passed to drill as follows: drill [OPTIONS]
             --benchmark <benchmarkFile>'
           properties:
+            command:
+              description: The command for the pod to be run on
+              type: string
+            args:
+              description: The args to be passed to the pod
+              type: string
             benchmarkFile:
               description: BenchmarkFile is the entry point file (passed to --benchmark)
                 specified to drill.
@@ -803,10 +809,41 @@ spec:
                       type: object
                   type: object
               type: object
+            log:
+              description: If enabled the controller will create a volume and send the log file to the host node.
+              properties:
+                filename:
+                  description: The name of the file that should be outputted
+                  type: string
+                enabled:
+                  description: Enabled status of the volume
+                  type: boolean
+                volume: 
+                  description: The volume on the client pod
+                  properties:
+                    name:
+                      description: The name of the volume 
+                      type: string
+                    path:
+                      description: The pathname
+                      type: string
+                  type: object
+                volumemount: 
+                  description: The host volume
+                  properties:
+                    name:
+                      description: The name of the volume 
+                      type: string
+                    path:
+                      description: The pathname
+                      type: string
+                  type: object
+              type: object
           required:
           - benchmarkFile
           - benchmarksVolume
           - image
+          - log
           type: object
         status:
           description: BenchmarkStatus describes the current state of the benchmark
