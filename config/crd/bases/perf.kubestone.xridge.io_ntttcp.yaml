@@ -1579,7 +1579,7 @@ spec:
                   type: string
             completions:
               description: The number of times the job should be completed.
-              type: int
+              type: integer
           required:
           - image
           - port
