@@ -84,6 +84,8 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 	}
 
 	backoffLimit := int32(6)
+	completions := cr.Spec.Completions
+	job.Spec.Completions = &completions
 	job.Spec.BackoffLimit = &backoffLimit
 	job.Spec.Template.Spec.Containers[0].Args = ethrCmdLineArgs
 	job.Spec.Template.Spec.HostNetwork = cr.Spec.ClientConfiguration.HostNetwork

@@ -97,7 +97,7 @@ func NewServerDeployment(cr *perfv1alpha1.Iperf2) *appsv1.Deployment {
 							Args:            iperfCmdLineArgs,
 							Ports: []corev1.ContainerPort{
 								{
-									Name:          "iperf-server",
+									Name:          "iperf2-server",
 									ContainerPort: Iperf2ServerPort,
 									Protocol:      protocol,
 								},

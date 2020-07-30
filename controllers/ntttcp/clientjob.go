@@ -87,7 +87,6 @@ func NewClientJob(cr *perfv1alpha1.Ntttcp, serverAddress string) *batchv1.Job {
 				MountPath: cr.Spec.Log.VolumeMount.Path,
 			},
 		}
-
 		job.Spec.Template.Spec.Volumes = volumes
 		job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
 	}

@@ -839,11 +839,15 @@ spec:
                       type: string
                   type: object
               type: object
+            completions:
+              description: The number of times the job should be completed.
+              type: int32
           required:
           - benchmarkFile
           - benchmarksVolume
           - image
           - log
+          - completions
           type: object
         status:
           description: BenchmarkStatus describes the current state of the benchmark

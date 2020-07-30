@@ -63,6 +63,9 @@ type NtttcpSpec struct {
 
 	// The -m arg used to pass in session count, processor number, address
 	Mapping MappingSpec `json:"mapping"`
+
+	// Number of times in a row to run the test
+	Completions int `json:"completions"`
 }
 
 type MappingSpec struct {

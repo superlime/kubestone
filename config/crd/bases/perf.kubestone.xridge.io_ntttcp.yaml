@@ -1577,10 +1577,15 @@ spec:
                 processor:
                   description: The processor(s) to be used.
                   type: string
+            completions:
+              description: The number of times the job should be completed.
+              type: int
           required:
           - image
           - port
           - readinesscmd
+          - log
+          - completions
           type: object
         status:
           description: BenchmarkStatus describes the current state of the benchmark

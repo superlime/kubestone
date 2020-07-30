@@ -54,6 +54,9 @@ type DrillSpec struct {
 	// If enabled the controller will create a volume and send the log file to the host node.
 	// +optional
 	Log LogSpec `json:"log,omitempty"`
+
+	// Number of times in a row to run the test
+	Completions int32 `json:"completions"`
 }
 
 // +kubebuilder:object:root=true
