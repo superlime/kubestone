@@ -1563,7 +1563,7 @@ spec:
               type: object
             completions:
               description: The number of times the job should be completed.
-              type: int32
+              type: integer
           required:
           - image
           - log
