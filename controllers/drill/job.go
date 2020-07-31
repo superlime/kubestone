@@ -18,7 +18,8 @@ package drill
 
 import (
 	"errors"
-
+	"time"
+	
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -62,7 +63,7 @@ func NewJob(cr *perfv1alpha1.Drill, configMap *corev1.ConfigMap) *batchv1.Job {
 
 	if cr.Spec.Log.Enabled {
 		args = append(args, "--report")
-		args = append(args, cr.Spec.Log.VolumeMount.Path+cr.Spec.Log.FileName)
+		args = append(args, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Unix(1573142098, 0).Format(time.UnixDate) + cr.Spec.Log.Extension)
 
 		volumes = append(
 			volumes, 

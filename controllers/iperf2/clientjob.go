@@ -18,6 +18,7 @@ package iperf2
 
 import (
 	"strconv"
+	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -64,7 +65,7 @@ func NewClientJob(cr *perfv1alpha1.Iperf2, serverAddress string) *batchv1.Job {
 
 		if cr.Spec.Log.Enabled {
 		
-			iperfCmdLineArgs = append(iperfCmdLineArgs, "-o", cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName)
+			iperfCmdLineArgs = append(iperfCmdLineArgs, ">", cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Unix(1573142098, 0).Format(time.UnixDate) + cr.Spec.Log.Extension)
 			volumes := []corev1.Volume{
 				corev1.Volume{
 					Name: cr.Spec.Log.Volume.Name,

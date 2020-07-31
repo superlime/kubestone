@@ -91,6 +91,8 @@ type LogSpec struct {
 	Volume VolumeInfo `json:"volume"`
 
 	VolumeMount VolumeInfo `json:"volumemount"`
+
+	Extension string `json:"extension"`
 }
 
 type VolumeInfo struct {

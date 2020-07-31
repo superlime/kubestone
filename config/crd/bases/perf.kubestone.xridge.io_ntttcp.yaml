@@ -1557,6 +1557,9 @@ spec:
                       description: The pathname
                       type: string
                   type: object
+                extension:
+                  description: The file extension
+                  type: string
               type: object
             port:
               description: The port number used by the service.
