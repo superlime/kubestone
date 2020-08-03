@@ -1557,6 +1557,9 @@ spec:
                       description: The pathname
                       type: string
                   type: object
+                extension:
+                  description: The file extension
+                  type: string
               type: object
             port:
               description: The port number used by the service.
@@ -1577,10 +1580,15 @@ spec:
                 processor:
                   description: The processor(s) to be used.
                   type: string
+            completions:
+              description: The number of times the job should be completed.
+              type: integer
           required:
           - image
           - port
           - readinesscmd
+          - log
+          - completions
           type: object
         status:
           description: BenchmarkStatus describes the current state of the benchmark

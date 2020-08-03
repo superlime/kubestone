@@ -17,6 +17,7 @@ limitations under the License.
 package ethr
 
 import (
+	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -60,7 +61,7 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 
 		ethrCmdLineArgs = append(ethrCmdLineArgs, "-o")
 
-		ethrCmdLineArgs = append(ethrCmdLineArgs, cr.Spec.Log.VolumeMount.Path+cr.Spec.Log.FileName)
+		ethrCmdLineArgs = append(ethrCmdLineArgs, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Unix(1573142098, 0).Format(time.UnixDate) + cr.Spec.Log.Extension)
 
 		volumes := []corev1.Volume{
 			corev1.Volume{
@@ -84,6 +85,8 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 	}
 
 	backoffLimit := int32(6)
+	completions := cr.Spec.Completions
+	job.Spec.Completions = &completions
 	job.Spec.BackoffLimit = &backoffLimit
 	job.Spec.Template.Spec.Containers[0].Args = ethrCmdLineArgs
 	job.Spec.Template.Spec.HostNetwork = cr.Spec.ClientConfiguration.HostNetwork

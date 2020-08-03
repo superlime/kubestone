@@ -18,7 +18,8 @@ package drill
 
 import (
 	"errors"
-
+	"time"
+	
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -58,10 +59,11 @@ func NewJob(cr *perfv1alpha1.Drill, configMap *corev1.ConfigMap) *batchv1.Job {
 		},
 	}
 
+	args := cr.Spec.Args
+
 	if cr.Spec.Log.Enabled {
-		args := cr.Spec.Args
 		args = append(args, "--report")
-		args = append(args, cr.Spec.Log.VolumeMount.Path+cr.Spec.Log.FileName)
+		args = append(args, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Unix(1573142098, 0).Format(time.UnixDate) + cr.Spec.Log.Extension)
 
 		volumes = append(
 			volumes, 
@@ -85,9 +87,11 @@ func NewJob(cr *perfv1alpha1.Drill, configMap *corev1.ConfigMap) *batchv1.Job {
 	}
 
 	job := k8s.NewPerfJob(objectMeta, "drill", cr.Spec.Image, cr.Spec.PodConfig)
+	completions := cr.Spec.Completions
+	job.Spec.Completions = &completions
 	job.Spec.Template.Spec.Volumes = volumes
 	job.Spec.Template.Spec.Containers[0].Command = cr.Spec.Command
-	job.Spec.Template.Spec.Containers[0].Args = cr.Spec.Args
+	job.Spec.Template.Spec.Containers[0].Args = args
 	job.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
 	return job
 }

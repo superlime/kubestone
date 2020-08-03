@@ -1557,9 +1557,17 @@ spec:
                       description: The pathname
                       type: string
                   type: object
+                extension:
+                  description: The file extension
+                  type: string
               type: object
+            completions:
+              description: The number of times the job should be completed.
+              type: integer
           required:
           - image
+          - log
+          - completions
           type: object
         status:
           description: BenchmarkStatus describes the current state of the benchmark

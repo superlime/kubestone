@@ -62,54 +62,52 @@ func (r *Reconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	if err := r.K8S.Client.Status().Update(ctx, &cr); err != nil {
 		return ctrl.Result{}, err
 	}
+		serverDeployment := NewServerDeployment(&cr)
+		if err := r.K8S.CreateWithReference(ctx, serverDeployment, &cr); err != nil {
+			return ctrl.Result{}, err
+		}
 
-	serverDeployment := NewServerDeployment(&cr)
-	if err := r.K8S.CreateWithReference(ctx, serverDeployment, &cr); err != nil {
-		return ctrl.Result{}, err
-	}
+		serverService := NewServerService(&cr)
+		if err := r.K8S.CreateWithReference(ctx, serverService, &cr); err != nil {
+			return ctrl.Result{}, err
+		}
 
-	serverService := NewServerService(&cr)
-	if err := r.K8S.CreateWithReference(ctx, serverService, &cr); err != nil {
-		return ctrl.Result{}, err
-	}
+		endpointReady, err := r.K8S.IsEndpointReady(types.NamespacedName{
+			Namespace: cr.Namespace,
+			Name:      cr.Name})
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		if !endpointReady {
+			// Wait for deployment to be connected to the service endpoint
+			return ctrl.Result{Requeue: true}, nil
+		}
 
-	endpointReady, err := r.K8S.IsEndpointReady(types.NamespacedName{
-		Namespace: cr.Namespace,
-		Name:      cr.Name})
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-	if !endpointReady {
-		// Wait for deployment to be connected to the service endpoint
-		return ctrl.Result{Requeue: true}, nil
-	}
+		serviceIp := r.K8S.GetEndpointAddress(types.NamespacedName{
+			Namespace: cr.Namespace,
+			Name:      cr.Name})
+		if err := r.K8S.CreateWithReference(ctx, NewClientJob(&cr, serviceIp), &cr); err != nil {
+			return ctrl.Result{}, err
+		}
 
-	serviceIp := r.K8S.GetEndpointAddress(types.NamespacedName{
-		Namespace: cr.Namespace,
-		Name:      cr.Name})
-	if err := r.K8S.CreateWithReference(ctx, NewClientJob(&cr, serviceIp), &cr); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	jobFinished, err := r.K8S.IsJobFinished(types.NamespacedName{
-		Namespace: cr.Namespace,
-		Name:      clientJobName(&cr),
-	})
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-	if !jobFinished {
-		// Wait for the job to be completed
-		return ctrl.Result{Requeue: true}, nil
-	}
-
-	if err := r.K8S.DeleteObject(ctx, serverService, &cr); err != nil {
-		return ctrl.Result{}, err
-	}
-
-	if err := r.K8S.DeleteObject(ctx, serverDeployment, &cr); err != nil {
-		return ctrl.Result{}, err
-	}
+		jobFinished, err := r.K8S.IsJobFinished(types.NamespacedName{
+			Namespace: cr.Namespace,
+			Name:      clientJobName(&cr),
+		})
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		if !jobFinished {
+			// Wait for the job to be completed
+			return ctrl.Result{Requeue: true}, nil
+		}
+		if err := r.K8S.DeleteObject(ctx, serverService, &cr); err != nil {
+			return ctrl.Result{}, err
+		}
+	
+		if err := r.K8S.DeleteObject(ctx, serverDeployment, &cr); err != nil {
+			return ctrl.Result{}, err
+		}
 
 	cr.Status.Running = false
 	cr.Status.Completed = true

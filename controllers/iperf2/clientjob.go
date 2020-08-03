@@ -64,7 +64,6 @@ func NewClientJob(cr *perfv1alpha1.Iperf2, serverAddress string) *batchv1.Job {
 
 		if cr.Spec.Log.Enabled {
 		
-			iperfCmdLineArgs = append(iperfCmdLineArgs, "-o", cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName)
 			volumes := []corev1.Volume{
 				corev1.Volume{
 					Name: cr.Spec.Log.Volume.Name,
@@ -87,6 +86,8 @@ func NewClientJob(cr *perfv1alpha1.Iperf2, serverAddress string) *batchv1.Job {
 		}
 
 	backoffLimit := int32(6)
+	completions := cr.Spec.Completions
+	job.Spec.Completions = &completions
 	job.Spec.BackoffLimit = &backoffLimit
 	job.Spec.Template.Spec.Containers[0].Args = iperfCmdLineArgs
 	job.Spec.Template.Spec.HostNetwork = cr.Spec.ClientConfiguration.HostNetwork
