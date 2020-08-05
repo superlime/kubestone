@@ -63,7 +63,7 @@ func NewJob(cr *perfv1alpha1.Drill, configMap *corev1.ConfigMap) *batchv1.Job {
 
 	if cr.Spec.Log.Enabled {
 		args = append(args, "--report")
-		args = append(args, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Unix(1573142098, 0).Format(time.UnixDate) + cr.Spec.Log.Extension)
+		args = append(args, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Now().Format("2006-01-02_15-04-05") + cr.Spec.Log.Extension)
 
 		volumes = append(
 			volumes, 

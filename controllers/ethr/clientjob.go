@@ -58,10 +58,10 @@ func NewClientJob(cr *perfv1alpha1.Ethr, serverAddress string) *batchv1.Job {
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
 
 	if cr.Spec.Log.Enabled {
-
+		now := time.Now().Format("2006-01-02_15-04-05")
 		ethrCmdLineArgs = append(ethrCmdLineArgs, "-o")
 
-		ethrCmdLineArgs = append(ethrCmdLineArgs, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Unix(1573142098, 0).Format(time.UnixDate) + cr.Spec.Log.Extension)
+		ethrCmdLineArgs = append(ethrCmdLineArgs, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + now + cr.Spec.Log.Extension)
 
 		volumes := []corev1.Volume{
 			corev1.Volume{
