@@ -1,0 +1,17 @@
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Ioping
+metadata:
+  name: ioping-sample
+spec:
+  podAffinity:
+    nodeSelector:
+      kubernetes.io/os: windows
+  image:
+    name: bwatada/ioping:windows
+    pullPolicy: Always
+
+  args: -w 10
+
+  volume:
+    volumeSource:
+      emptyDir: {}

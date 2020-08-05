@@ -1,0 +1,57 @@
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Drill
+metadata:
+  name: drill-sample
+spec:
+
+# Must create a shell in order to run the benchmark, likely because cd is not available to exec.
+  command:
+    - /bin/sh
+    - -xc
+  args:
+    - cd /benchmarks && cat other.yml && drill --benchmark benchmark.yml
+  podConfig:
+    podScheduling:
+      affinity:
+        nodeSelector:
+          kubernetes.io/os: linux
+  image:
+    name: xridge/drill:0.5.0
+    # pullPolicy: IfNotPresent
+    # pullSecret: null
+  benchmarksVolume:
+    benchmark.yml: |
+      ---
+      threads: 1
+      base: 'https://kubernetes.io'
+      iterations: 2
+      rampup: 2
+
+      plan:
+        - name: Include other file
+          include: other.yml
+
+        - name: Fetch kubernetes.io
+          request:
+            url: /
+
+    other.yml: |
+      ---
+      - name: Fetch docs
+        request:
+          url: /docs
+
+  benchmarkFile: benchmark.yml
+
+  options: --stats
+  # Enabling log also automatically inserts the command line arg for output, so you don't have to.
+  log: 
+      filename: drill.log
+      enabled: true
+      volume:
+        name: output-volume
+        path: \tmp\
+      volumemount:
+        name: output-volume
+        path: \tmp\
+  completions: 1

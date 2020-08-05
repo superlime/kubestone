@@ -1,0 +1,71 @@
+---
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Ethr
+metadata:
+  name: ethr
+spec:
+  image:
+    name: bwatada/ethr:latest
+    pullPolicy: Always
+    # pullSecret: null
+
+  serverConfiguration:
+    # cmdLineArgs: --verbose
+    podLabels:
+      iperf-mode: server
+
+    podScheduling:
+      # Command line args to append to the end of the command and controller inserted args.
+      cmdLineArgs: -ui
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      # Pod must be scheduled on a windows node
+      nodeSelector:
+        kubernetes.io/os: windows
+    hostNetwork: false
+    
+  clientConfiguration:
+    # cmdLineArgs:
+    podScheduling:
+      # Pod must be scheduled on a windows node
+      nodeSelector:
+        kubernetes.io/os: windows
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          # Pod must avoid the node with the server pod on it.
+          - labelSelector:
+              matchExpressions:
+              - key: ethr-mode
+                operator: In
+                values:
+                - server
+            topologyKey: "kubernetes.io/hostname"
+
+# The controller inserts the -u flag when udp is true, this is required because the controller must also change the port type
+  udp: false
+
+  # logging configuration, volume is the directory on the pod, and volumemount is the directory on the cluster.
+  # filename corresponds with the desired name of the output logfile.
+  # Enabling log also automatically inserts the command line arg for output, so you don't have to.
+  log: 
+    filename: ethr_
+    extension: .json
+    enabled: true
+    # volume on the pod, must end with \ or /. It is concatenated with the filename to form the required directory.
+    volume:
+      name: output-volume
+      path: \tmp\
+    # volume on the host node, must end with \ or /. It is concatenated with the filename to form the required directory.
+    volumemount:
+      name: output-volume
+      path: \tmp\
+  completions: 1

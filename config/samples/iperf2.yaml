@@ -1,0 +1,61 @@
+# The iperf2 image is wrapped in a bat file that gets a timestamp and outputs the file to a csv.
+# cmd line args can still be passed in to the exe as usual.
+---
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Iperf2
+metadata:
+  name: iperf2
+spec:
+  image:
+    name: bwatada/iperf2:latest
+    pullPolicy: Always
+
+  serverConfiguration:
+    cmdLineArgs: -y C
+    podLabels:
+      iperf-mode: server
+
+    podScheduling:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      nodeSelector: 
+        kubernetes.io/os: windows
+    hostNetwork: false
+    
+  clientConfiguration:
+    cmdLineArgs: -i 1 -y C
+    podScheduling:
+      nodeSelector:
+        kubernetes.io/os: windows
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: iperf2-mode
+                operator: In
+                values:
+                - server
+            topologyKey: "kubernetes.io/hostname"
+
+  udp: false
+  # Iperf2 is set to always output to a timestamped file for each individual test run, so only enable log if 
+  # you want to see the .bat file output.
+  # filename is hardcoded in the bat file, as iperf_%timestamp%.csv, so no need for filename here.
+  log: 
+    enabled: true
+    volume:
+      name: output-volume
+      path: \tmp
+    volumemount:
+      name: output-volume
+      path: \tmp\
+  completions: 1

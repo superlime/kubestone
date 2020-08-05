@@ -1,0 +1,79 @@
+---
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Ntttcp
+metadata:
+  name: ntttcp-linux
+spec:
+  # Need this to make sure that the server pod is ready before creating the client job and service. Because linux and windows use different commands, the user has to choose what to use.
+  # Any command that will exit with code 0 will send the ready signal.
+  readinesscmd: 
+    - lsof
+    - -i 
+    - -P
+    - |
+    - grep
+    - "5001"
+  image:
+    name: bwatada/ntttcp:latest
+    pullPolicy: IfNotPresent
+
+  serverConfiguration:
+    # Command line args to append to the end of the command and controller inserted args.
+    # cmdLineArgs: --verbose
+    podLabels:
+      ntttcp-mode: server
+
+    podScheduling:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      # Pod must be scheduled on a linux node
+      nodeSelector:
+        kubernetes.io/os: linux
+    hostNetwork: false
+    
+  clientConfiguration:
+    podScheduling:
+      # Pod must be scheduled on a linux node
+      nodeSelector:
+        kubernetes.io/os: linux
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          # Pod must avoid the node with the server pod on it.
+          - labelSelector:
+              matchExpressions:
+              - key: ntttcp-mode
+                operator: In
+                values:
+                - server
+            topologyKey: "kubernetes.io/hostname"
+
+ # The controller inserts the -u flag when udp is true, this is required because the controller must also change the port type
+  udp: false
+
+  # The port number that the receiver will receive traffic on
+  port: 5001
+
+  # Args to be passed in to -m param, address is omitted because we always listen on 0.0.0.0.
+  mapping:
+    sessioncount: "1"
+    processor: "*"
+  # Enabling log also automatically inserts the command line arg for output, so you don't have to.
+  log: 
+    filename: ntttcp.xml
+    enabled: true
+    volume:
+      name: output-volume
+      path: \tmp\
+    volumemount:
+      name: output-volume
+      path: \tmp\
+  completions: 1

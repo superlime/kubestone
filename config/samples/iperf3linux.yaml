@@ -1,0 +1,63 @@
+---
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Iperf3
+metadata:
+  name: iperf3-linux
+spec:
+  image:
+    name: bwatada/iperf3:latest
+    pullPolicy: IfNotPresent
+    # pullSecret: null
+
+  serverConfiguration:
+    cmdLineArgs: --verbose
+    # nodeSelector: null
+    podLabels:
+      iperf-mode: server
+
+    podScheduling:
+      affinity:
+        # nodeAffinity: null
+        # podAffinity: null
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      # tolerations: null
+      nodeSelector:
+        kubernetes.io/os: linux
+      # nodeName: null
+    hostNetwork: false
+    
+  clientConfiguration:
+    podScheduling:
+      nodeSelector:
+        kubernetes.io/os: linux
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: iperf-mode
+                operator: In
+                values:
+                - server
+            topologyKey: "kubernetes.io/hostname"
+
+  udp: false
+  # Enabling log also automatically inserts the command line arg for output, so you don't have to.
+  log: 
+    filename: outfile.log
+    enabled: true
+    volume:
+      name: output-volume
+      path: /logs/
+    volumemount:
+      name: output-volume
+      path: /logs/
+  completions: 1

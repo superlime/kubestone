@@ -1,0 +1,64 @@
+---
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Ethr
+metadata:
+  name: ethr-linux
+spec:
+  image:
+    name: bwatada/ethr:latest
+    pullPolicy: Always
+    # pullSecret: null
+
+  serverConfiguration:
+    # cmdLineArgs: -p 5001
+    podLabels:
+      iperf-mode: server
+
+    podScheduling:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      nodeSelector:
+        kubernetes.io/os: linux
+    hostNetwork: false
+    
+  clientConfiguration:
+    #cmdLineArgs: -t l -o
+    podScheduling:
+      nodeSelector:
+        kubernetes.io/os: linux
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: ethr-mode
+                operator: In
+                values:
+                - server
+            topologyKey: "kubernetes.io/hostname"
+
+  udp: false
+
+  # logging configuration, volume is the directory on the pod, and volumemount is the directory on the cluster.
+  # filename corresponds with the desired name of the output logfile.
+  # do not write to tmp directory, tmp is pre-existing on linux machines and requires root access.
+  # Enabling log also automatically inserts the command line arg for output, so you don't have to.
+  log: 
+    filename: ethr-linux
+    extension: .log
+    enabled: true
+    volume:
+      name: output-volume
+      path: /logs/
+    volumemount:
+      name: output-volume
+      path: /logs/
+  completions: 1

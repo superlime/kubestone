@@ -1,0 +1,9 @@
+FROM alpine:20190707
+
+RUN mkdir logs
+
+RUN apk add --no-cache iperf
+
+COPY iperf.sh /iperf.sh
+
+ENTRYPOIN ["./iperf.sh"]

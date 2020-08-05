@@ -1,0 +1,13 @@
+---
+threads: 2
+base: 'https://kubernetes.io'
+iterations: 1
+rampup: 75
+
+plan:
+  - name: Include other file
+    include: other.yml
+
+  - name: Fetch kubernetes.io
+    request:
+      url: /
