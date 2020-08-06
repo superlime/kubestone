@@ -66,7 +66,8 @@ func NewClientJob(cr *perfv1alpha1.Iperf3, serverAddress string) *batchv1.Job {
 		cr.Spec.ClientConfiguration.PodConfigurationSpec)
 
 	if cr.Spec.Log.Enabled {
-		iperfCmdLineArgs = append(iperfCmdLineArgs, "--logfile", cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Now().Format("2006-01-02_15-04-05") + cr.Spec.Log.Extension)
+		now := time.Now().Format("2006-01-02_15-04-05")
+		iperfCmdLineArgs = append(iperfCmdLineArgs, "--logfile", cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + now + cr.Spec.Log.Extension)
 		volumes := []corev1.Volume{
 			corev1.Volume{
 				Name: cr.Spec.Log.Volume.Name,

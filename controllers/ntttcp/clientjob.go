@@ -61,9 +61,11 @@ func NewClientJob(cr *perfv1alpha1.Ntttcp, serverAddress string) *batchv1.Job {
 
 	if cr.Spec.Log.Enabled {
 
+		now := time.Now().Format("2006-01-02_15-04-05")
+
 		ntttcpCmdLineArgs = append(ntttcpCmdLineArgs, "-xml")
 		
-		ntttcpCmdLineArgs = append(ntttcpCmdLineArgs, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + time.Now().Format("2006-01-02_15-04-05") + cr.Spec.Log.Extension)
+		ntttcpCmdLineArgs = append(ntttcpCmdLineArgs, cr.Spec.Log.VolumeMount.Path + cr.Spec.Log.FileName + now + cr.Spec.Log.Extension)
 
 		volumes := []corev1.Volume{
 			corev1.Volume{
